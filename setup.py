@@ -19,7 +19,7 @@ setup(
     long_description_content_type='text/x-rst',
     url='https://weisslab.cs.ucl.ac.uk/WEISS/SoftwareRepositories/SNAPPY/scikit-surgeryvideoutils',
     author='Matt Clarkson',
-    author_email='YOUR-EMAIL@ucl.ac.uk',
+    author_email='m.clarkson@ucl.ac.uk',
     license='BSD-3 license',
     classifiers=[
         'Development Status :: 3 - Alpha',
@@ -57,7 +57,7 @@ setup(
 
     entry_points={
         'console_scripts': [
-            'sksurgeryvideoutils=sksurgeryvideoutils.__main__:main',
+            'sksurgeryvidelag=sksurgeryvideoutils.ui.sksurgeryvideolag:main',
         ],
     },
 )

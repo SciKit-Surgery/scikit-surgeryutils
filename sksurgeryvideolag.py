@@ -2,7 +2,7 @@
 #  -*- coding: utf-8 -*-
 import sys
 
-from sksurgeryvideoutils.ui.sksurgeryvideoutils_command_line import main
+from sksurgeryvideoutils.ui.sksurgeryvideolag_command_line import main
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv[1:]))

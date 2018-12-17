@@ -3,4 +3,3 @@ omit =
         ./sksurgeryvideoutils/_version.py
         ./sksurgeryvideoutils/__init__.py
         ./sksurgeryvideoutils/__main__.py
-        ./sksurgeryvideoutils/ui/sksurgeryvideoutils_command_line.py
