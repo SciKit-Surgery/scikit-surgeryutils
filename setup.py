@@ -57,7 +57,7 @@ setup(
 
     entry_points={
         'console_scripts': [
-            'sksurgeryvidelag=sksurgeryvideoutils.ui.sksurgeryvideolag:main',
+            'sksurgeryvideolag=sksurgeryvideoutils.ui.sksurgeryvideolag_command_line:main',
         ],
     },
 )
