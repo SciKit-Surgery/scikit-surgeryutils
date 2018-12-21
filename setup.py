@@ -53,11 +53,15 @@ setup(
     install_requires=[
         'six>=1.10',
         'numpy>=1.11',
+        'opencv-contrib-python>=3.4.4',
+        'PySide2>=5.12.0',
+        'scikit-surgeryimage>=0.1.0',
     ],
 
     entry_points={
         'console_scripts': [
             'sksurgeryvideolag=sksurgeryvideoutils.ui.sksurgeryvideolag_command_line:main',
+            'sksurgerycharucotest=sksurgeryvideoutils.ui.sksurgerycharucotest_command_line:main',
         ],
     },
 )

@@ -3,11 +3,11 @@
 """ Demo app, to show OpenCV video and PySide2 widgets together."""
 import sys
 import time
-import ctypes
 import six
 import cv2
 from PySide2 import QtCore, QtWidgets, QtGui
 from PySide2.QtCore import Slot
+import sksurgeryvideoutils.utils.image_utils as iu
 
 
 # pylint: disable=too-many-instance-attributes
@@ -135,21 +135,7 @@ class DemoGui(QtWidgets.QWidget):
         decode_time = time.time()
         self.total_time_to_decode += (decode_time - grab_time)
 
-        # Workaround for memory leak.
-        # See: https://bugreports.qt.io/browse/PYSIDE-140
-        # Should be fixed properly in PySide 5.11.3
-        # Once we upgrade to 5.11.3, take out the hack on
-        # the ch and rcount variables, and just create qimage
-        # and then instantiate pixmap from qimage.
-        pointer_to_buffer = ctypes.c_char.from_buffer(rgb_frame, 0)
-        rcount = ctypes.c_long.from_address(id(pointer_to_buffer)).value
-        qimage = QtGui.QImage(pointer_to_buffer,
-                              rgb_frame.shape[1],
-                              rgb_frame.shape[0],
-                              QtGui.QImage.Format_RGB888)
-        if sys.version[0] == '3':
-            ctypes.c_long.from_address(id(pointer_to_buffer)).value = rcount
-        pixmap = QtGui.QPixmap.fromImage(qimage)
+        pixmap = iu.image_to_pixmap(rgb_frame)
         self.image_label.setPixmap(pixmap)
 
         # Independently work out the total time displaying.
