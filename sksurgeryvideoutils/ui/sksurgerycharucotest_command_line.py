@@ -32,8 +32,9 @@ def main(args=None):
 
     parser.add_argument("-d", "--dictionary",
                         required=True,
-                        type=str,
-                        help="String describing aruco dictionary.")
+                        default=2,
+                        type=int,
+                        help="ArUco dictionary, see: https://docs.opencv.org/3.1.0/d4/d17/namespacecv_1_1aruco.html.")
 
     version_string = __version__
     friendly_version_string = version_string if version_string else 'unknown'

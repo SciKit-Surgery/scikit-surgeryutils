@@ -21,6 +21,12 @@ class CharucoDemoGui(QtWidgets.QWidget):
         if camera < 0:
             raise ValueError('The camera number should be >= 0')
 
+        if not isinstance(dictionary, int):
+            raise TypeError('dictionary should be an int >= 0')
+
+        if dictionary < 0:
+            raise ValueError('dictionary should be an ArUco enum.')
+
         self.cap = cv2.VideoCapture(camera)  # pylint: disable=no-member
 
         if not self.cap.isOpened():
@@ -30,7 +36,7 @@ class CharucoDemoGui(QtWidgets.QWidget):
         if not grabbed:
             raise RuntimeError("Failed to grab first frame.")
 
-        self.dictionary = aruco.Dictionary_get(aruco.DICT_4X4_250)
+        self.dictionary = aruco.Dictionary_get(dictionary)
         self.board = aruco.CharucoBoard_create(x_squares,
                                                y_squares,
                                                2,
