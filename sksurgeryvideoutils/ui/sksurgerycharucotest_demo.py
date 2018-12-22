@@ -15,7 +15,7 @@ import sksurgeryvideoutils.utils.image_utils as iu
 
 class CharucoDemoGui(QtWidgets.QWidget):
     """ Demo GUI, with 2 QLabel side by side."""
-    def __init__(self, camera, x_squares, y_squares, dictionary):
+    def __init__(self, camera, width, height, rows, columns, dictionary):
         super().__init__()
 
         if camera < 0:
@@ -28,6 +28,8 @@ class CharucoDemoGui(QtWidgets.QWidget):
             raise ValueError('dictionary should be an ArUco enum of dictionary')
 
         self.cap = cv2.VideoCapture(camera)  # pylint: disable=no-member
+        self.cap.set(3, width)
+        self.cap.set(4, height)
 
         if not self.cap.isOpened():
             raise ValueError("Unable to open camera:" + str(camera))
@@ -36,10 +38,18 @@ class CharucoDemoGui(QtWidgets.QWidget):
         if not grabbed:
             raise RuntimeError("Failed to grab first frame.")
 
+        if self.frame.shape[0] != height:
+            raise ValueError("Grabbed image has wrong number of rows:"
+                             + str(self.frame.shape[0]))
+
+        if self.frame.shape[1] != width:
+            raise ValueError("Grabbed image has wrong number of columns:"
+                             + str(self.frame.shape[1]))
+
         # pylint: disable=no-member
         self.dictionary = aruco.Dictionary_get(dictionary)
-        self.board = aruco.CharucoBoard_create(x_squares,
-                                               y_squares,
+        self.board = aruco.CharucoBoard_create(rows,
+                                               columns,
                                                2,
                                                1,
                                                self.dictionary)
@@ -103,17 +113,20 @@ class CharucoDemoGui(QtWidgets.QWidget):
         self.image_label.setPixmap(pixmap)
 
 
-def run_demo(camera, width, height, dictionary):
+def run_demo(camera, width, height, rows, columns, dictionary):
 
     """ Prints command line args, and launches main screen."""
     six.print_("Camera:" + str(camera))
     six.print_("  Width:" + str(width))
     six.print_("  Height:" + str(height))
-    six.print_("Dictionary:" + str(dictionary))
+    six.print_("Board:")
+    six.print_("  Rows:" + str(rows))
+    six.print_("  Columns:" + str(columns))
+    six.print_("  Dictionary:" + str(dictionary))
 
     app = QtWidgets.QApplication([])
 
-    widget = CharucoDemoGui(camera, width, height, dictionary)
+    widget = CharucoDemoGui(camera, width, height, rows, columns, dictionary)
     widget.show()
 
     return sys.exit(app.exec_())
