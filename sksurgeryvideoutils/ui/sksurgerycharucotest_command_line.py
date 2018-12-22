@@ -4,7 +4,7 @@
 
 import argparse
 from sksurgeryvideoutils import __version__
-from sksurgeryvideoutils.ui.sksurgerycharucotest_demo import run_charucotest_demo
+from sksurgeryvideoutils.ui.sksurgerycharucotest_demo import run_demo
 
 
 def main(args=None):
@@ -34,7 +34,7 @@ def main(args=None):
                         required=True,
                         default=2,
                         type=int,
-                        help="ArUco dictionary, see: https://docs.opencv.org/3.1.0/d4/d17/namespacecv_1_1aruco.html.")
+                        help="ArUco dictionary enum.")
 
     version_string = __version__
     friendly_version_string = version_string if version_string else 'unknown'
@@ -45,8 +45,8 @@ def main(args=None):
 
     args = parser.parse_args(args)
 
-    run_charucotest_demo(args.camera,
-                         args.x_squares,
-                         args.y_squares,
-                         args.dictionary
-                         )
+    run_demo(args.camera,
+             args.x_squares,
+             args.y_squares,
+             args.dictionary
+             )

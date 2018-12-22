@@ -1,9 +1,13 @@
 # coding=utf-8
 
+"""
+Various image utilities that might be useful in this package.
+"""
+
 import sys
-import numpy as np
 import ctypes
-from PySide2 import QtCore, QtWidgets, QtGui
+import numpy as np
+from PySide2 import QtGui
 
 
 def image_to_pixmap(image):

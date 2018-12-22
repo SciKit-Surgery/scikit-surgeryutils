@@ -5,10 +5,10 @@ import sys
 import six
 import cv2
 from cv2 import aruco
-from PySide2 import QtCore, QtWidgets, QtGui
+from PySide2 import QtCore, QtWidgets
 from PySide2.QtCore import Slot
-import sksurgeryvideoutils.utils.image_utils as iu
 import sksurgeryimage.calibration.aruco as ar
+import sksurgeryvideoutils.utils.image_utils as iu
 
 # pylint: disable=too-many-instance-attributes
 
@@ -25,7 +25,7 @@ class CharucoDemoGui(QtWidgets.QWidget):
             raise TypeError('dictionary should be an int >= 0')
 
         if dictionary < 0:
-            raise ValueError('dictionary should be an ArUco enum.')
+            raise ValueError('dictionary should be an ArUco enum of dictionary')
 
         self.cap = cv2.VideoCapture(camera)  # pylint: disable=no-member
 
@@ -36,6 +36,7 @@ class CharucoDemoGui(QtWidgets.QWidget):
         if not grabbed:
             raise RuntimeError("Failed to grab first frame.")
 
+        # pylint: disable=no-member
         self.dictionary = aruco.Dictionary_get(dictionary)
         self.board = aruco.CharucoBoard_create(x_squares,
                                                y_squares,
@@ -77,18 +78,19 @@ class CharucoDemoGui(QtWidgets.QWidget):
         greyscale_frame = cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)
 
         # Run aruco to detect markers
-        number_of_markers, marker_corners, marker_ids, \
+        # pylint: disable=unbalanced-tuple-unpacking
+        _, _, \
             chessboard_corners, chessboard_ids \
             = ar.detect_charuco_points(self.dictionary,
-                                       greyscale_frame,
-                                       self.board
+                                       self.board,
+                                       greyscale_frame
                                        )
 
         # Draw detected corners back on RGB image.
         if chessboard_corners is not None \
             and chessboard_ids is not None \
-                and len(chessboard_corners) \
-                and len(chessboard_ids):
+                and chessboard_corners.shape[0] \
+                and chessboard_ids.shape[0]:
             annotated_frame = ar.draw_charuco_corners(rgb_frame,
                                                       chessboard_corners,
                                                       chessboard_ids
@@ -101,7 +103,7 @@ class CharucoDemoGui(QtWidgets.QWidget):
         self.image_label.setPixmap(pixmap)
 
 
-def run_charucotest_demo(camera, width, height, dictionary):
+def run_demo(camera, width, height, dictionary):
 
     """ Prints command line args, and launches main screen."""
     six.print_("Camera:" + str(camera))
