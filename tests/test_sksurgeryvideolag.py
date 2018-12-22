@@ -2,7 +2,7 @@
 
 """sksurgeryvideolag tests"""
 
-from sksurgeryvideoutils.ui.sksurgeryvideolag_demo import run_demo
+from sksurgeryvideoutils.ui.sksurgeryvideolag_ import run_demo
 
 
 def test_sksurgeryvideolag():

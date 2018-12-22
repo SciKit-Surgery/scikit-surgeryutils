@@ -18,11 +18,12 @@ scikit-surgeryvideoutils
     :target: http://scikit-surgeryvideoutils.readthedocs.io/en/latest/?badge=latest
     :alt: Documentation Status
 
+scikit-surgeryvideoutils is a python project containing a few test and demo
+utilities, based around opencv-contrib-python for video processing and
+PySide2 for GUI windows and widgets.
 
-
-scikit-surgeryvideoutils is a python project that does interesting things. 
-
-Author: Matt Clarkson
+* sksurgeryvideolag.py - shows a millisecond timer and video image to measure lag
+* sksurgerycharucotest.py - extracts charuco points and annotates video image with each id detected.
 
 scikit-surgeryvideoutils is part of the `SNAPPY`_ software project, developed at the `Wellcome EPSRC Centre for Interventional and Surgical Sciences`_, part of `University College London (UCL)`_.
 
