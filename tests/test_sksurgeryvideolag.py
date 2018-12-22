@@ -7,5 +7,5 @@ from sksurgeryvideoutils.ui.sksurgeryvideolag_demo import run_demo
 
 def test_sksurgeryvideolag():
     # placeholder for now.
-    pass
+    assert True
 
