@@ -1,6 +1,6 @@
 # coding=utf-8
 
-"""Command line processing"""
+""" Command line processing for videolag app. """
 
 import argparse
 from sksurgeryvideoutils import __version__
