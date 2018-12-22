@@ -31,7 +31,7 @@ def main(args=None):
                         help="Number of squares in Y direction.")
 
     parser.add_argument("-d", "--dictionary",
-                        required=True,
+                        required=False,
                         default=2,
                         type=int,
                         help="ArUco dictionary enum.")
