@@ -14,7 +14,7 @@ setup(
     name='scikit-surgeryvideoutils',
     version=versioneer.get_version(),
     cmdclass=versioneer.get_cmdclass(),
-    description='scikit-surgeryvideoutils',
+    description='scikit-surgeryvideoutils - Tests/demos utilities, based around opencv-contrib and PySide2',
     long_description=long_description,
     long_description_content_type='text/x-rst',
     url='https://weisslab.cs.ucl.ac.uk/WEISS/SoftwareRepositories/SNAPPY/scikit-surgeryvideoutils',
