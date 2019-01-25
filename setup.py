@@ -56,12 +56,14 @@ setup(
         'opencv-contrib-python>=3.4.4',
         'PySide2>=5.12.0',
         'scikit-surgeryimage>=0.1.1',
+        'scikit-surgeryvtk>=0.3.0',
     ],
 
     entry_points={
         'console_scripts': [
             'sksurgeryvideolag=sksurgeryutils.ui.sksurgeryvideolag_command_line:main',
             'sksurgerycharucotest=sksurgeryutils.ui.sksurgerycharucotest_command_line:main',
+            'sksurgeryrendermodelslikecamera=sksurgeryutils.ui.sksurgeryrendermodelslikecamera_command_line:main',
         ],
     },
 )
