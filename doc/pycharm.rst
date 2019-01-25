@@ -4,7 +4,7 @@ Some Hints for Developing with PyCharm
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 PyCharm is a popular python editor. This is a quickstart guide setting up 
-PyCharm for developing sksurgeryvideoutils.
+PyCharm for developing sksurgeryutils.
 This assumes you have PyCharm installed and configured to support virtual environments.
 
 1. Start PyCharm
@@ -25,6 +25,6 @@ This assumes you have PyCharm installed and configured to support virtual enviro
 16. `tox`
 17. Expand the project
 18. Right-click on the Tests folder and choose "Run Unittests in tests". This will create a new configuration for running tests
-19. Right-click on sksurgeryvideoutils and select Run sksurgeryvideoutils. This will create a new configuration for running the project.
+19. Right-click on sksurgeryutils and select Run sksurgeryutils. This will create a new configuration for running the project.
 20. Switch between the program and test configurations using the drop-down at the top of the screen, and the green arrow to run or the green bug to debug.
 

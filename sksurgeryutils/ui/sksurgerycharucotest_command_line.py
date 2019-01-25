@@ -3,8 +3,8 @@
 """ Command line processing for charucotest app. """
 
 import argparse
-from sksurgeryvideoutils import __version__
-from sksurgeryvideoutils.ui.sksurgerycharucotest_demo import run_demo
+from sksurgeryutils import __version__
+from sksurgeryutils.ui.sksurgerycharucotest_demo import run_demo
 
 
 def main(args=None):

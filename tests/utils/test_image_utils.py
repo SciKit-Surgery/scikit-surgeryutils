@@ -2,7 +2,7 @@
 
 import pytest
 import numpy as np
-import sksurgeryvideoutils.utils.image_utils as iu
+import sksurgeryutils.utils.image_utils as iu
 
 
 def test_image_to_pixel_invalid_because_input_is_none():

@@ -3,8 +3,8 @@
 """ Command line processing for videolag app. """
 
 import argparse
-from sksurgeryvideoutils import __version__
-from sksurgeryvideoutils.ui.sksurgeryvideolag_demo import run_demo
+from sksurgeryutils import __version__
+from sksurgeryutils.ui.sksurgeryvideolag_demo import run_demo
 
 
 def main(args=None):

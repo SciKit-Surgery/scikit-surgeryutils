@@ -3,12 +3,12 @@
 .. _requirements:
 
 ===============================================
-Requirements for scikit-surgeryvideoutils
+Requirements for scikit-surgeryutils
 ===============================================
 
-This is the software requirements file for scikit-surgeryvideoutils, part of the
+This is the software requirements file for scikit-surgeryutils, part of the
 SNAPPY project. The requirements listed below should define
-what scikit-surgeryvideoutils does. Each requirement can be matched to a unit test that
+what scikit-surgeryutils does. Each requirement can be matched to a unit test that
 checks whether the requirement is met.
 
 Requirements

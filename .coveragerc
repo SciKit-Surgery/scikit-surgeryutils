@@ -1,5 +1,5 @@
 [run]
 omit = 
-        ./sksurgeryvideoutils/_version.py
-        ./sksurgeryvideoutils/__init__.py
-        ./sksurgeryvideoutils/__main__.py
+        ./sksurgeryutils/_version.py
+        ./sksurgeryutils/__init__.py
+        ./sksurgeryutils/__main__.py

@@ -2,7 +2,7 @@
 
 """sksurgeryarucotest tests"""
 
-from sksurgeryvideoutils.ui.sksurgerycharucotest_demo import run_demo
+from sksurgeryutils.ui.sksurgerycharucotest_demo import run_demo
 
 
 def test_sksurgeryarucotest():

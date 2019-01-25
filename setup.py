@@ -1,6 +1,6 @@
 # coding=utf-8
 """
-Setup for scikit-surgeryvideoutils
+Setup for scikit-surgeryutils
 """
 
 from setuptools import setup, find_packages
@@ -11,13 +11,13 @@ with open('README.rst') as f:
     long_description = f.read()
 
 setup(
-    name='scikit-surgeryvideoutils',
+    name='scikit-surgeryutils',
     version=versioneer.get_version(),
     cmdclass=versioneer.get_cmdclass(),
-    description='scikit-surgeryvideoutils - Tests/demos utilities, based around opencv-contrib and PySide2',
+    description='scikit-surgeryutils - Tests/demos utilities, based around opencv-contrib and PySide2',
     long_description=long_description,
     long_description_content_type='text/x-rst',
-    url='https://weisslab.cs.ucl.ac.uk/WEISS/SoftwareRepositories/SNAPPY/scikit-surgeryvideoutils',
+    url='https://weisslab.cs.ucl.ac.uk/WEISS/SoftwareRepositories/SNAPPY/scikit-surgeryutils',
     author='Matt Clarkson',
     author_email='m.clarkson@ucl.ac.uk',
     license='BSD-3 license',
@@ -60,8 +60,8 @@ setup(
 
     entry_points={
         'console_scripts': [
-            'sksurgeryvideolag=sksurgeryvideoutils.ui.sksurgeryvideolag_command_line:main',
-            'sksurgerycharucotest=sksurgeryvideoutils.ui.sksurgerycharucotest_command_line:main',
+            'sksurgeryvideolag=sksurgeryutils.ui.sksurgeryvideolag_command_line:main',
+            'sksurgerycharucotest=sksurgeryutils.ui.sksurgerycharucotest_command_line:main',
         ],
     },
 )

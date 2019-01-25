@@ -1,19 +1,19 @@
 .. highlight:: shell
 
 ===============================================
-Contributing to scikit-surgeryvideoutils
+Contributing to scikit-surgeryutils
 ===============================================
 
-We welcome contributions to scikit-surgeryvideoutils.
+We welcome contributions to scikit-surgeryutils.
 
 
 Reporting bugs and feature requests
 -----------------------------------
 
-Please create a new issue on https://weisslab.cs.ucl.ac.uk/WEISS/SoftwareRepositories/SNAPPY/scikit-surgeryvideoutils/issues/new
+Please create a new issue on https://weisslab.cs.ucl.ac.uk/WEISS/SoftwareRepositories/SNAPPY/scikit-surgeryutils/issues/new
 
 When reporting a bug, please include:
-* The version of scikit-surgeryvideoutils you are using
+* The version of scikit-surgeryutils you are using
 * Your OS version (for example Windows 10 64-bit, macOS High Sierra, Ubuntu 16.04)
 * Detailed steps to reproduce the bug.
 
@@ -23,13 +23,13 @@ Fixing bugs or implement features
 
 The easiest way to contribute is to follow these guidelines:
 
-1. Look through the issues on https://weisslab.cs.ucl.ac.uk/WEISS/SoftwareRepositories/SNAPPY/scikit-surgeryvideoutils/issues and assign the relevant issue to yourself. If there is not an existing issue that covers your work, please create one: https://weisslab.cs.ucl.ac.uk/WEISS/SoftwareRepositories/SNAPPY/scikit-surgeryvideoutils/issues/new
+1. Look through the issues on https://weisslab.cs.ucl.ac.uk/WEISS/SoftwareRepositories/SNAPPY/scikit-surgeryutils/issues and assign the relevant issue to yourself. If there is not an existing issue that covers your work, please create one: https://weisslab.cs.ucl.ac.uk/WEISS/SoftwareRepositories/SNAPPY/scikit-surgeryutils/issues/new
 2. Read the design considerations below.
-3. Fork the repository: https://weisslab.cs.ucl.ac.uk/WEISS/SoftwareRepositories/SNAPPY/scikit-surgeryvideoutils/forks/new
+3. Fork the repository: https://weisslab.cs.ucl.ac.uk/WEISS/SoftwareRepositories/SNAPPY/scikit-surgeryutils/forks/new
 4. Create a branch for your changes. The branch name should start with the issue number, followed by hyphen separated words describing the issue. For example: 1-update-contribution-guidelines
 5. Make your changes following the coding guidelines below.
 6. Commit and push your changes to your fork. The commit message should start with `Issue #<issue number>`, for example: "Issue #1: Fixed typo". Commit in small, related chunks. Review each commit and explain its purpose in the commit message.
-7. Submit a merge request: https://weisslab.cs.ucl.ac.uk/WEISS/SoftwareRepositories/SNAPPY/scikit-surgeryvideoutils/merge_requests/new
+7. Submit a merge request: https://weisslab.cs.ucl.ac.uk/WEISS/SoftwareRepositories/SNAPPY/scikit-surgeryutils/merge_requests/new
 
 Design Considerations
 ---------------------

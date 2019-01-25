@@ -1,5 +1,5 @@
 # coding=utf-8
-"""scikit-surgeryvideoutils"""
+"""scikit-surgeryutils"""
 
 from ._version import get_versions
 __version__ = get_versions()['version']
