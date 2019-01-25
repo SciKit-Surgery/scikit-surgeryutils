@@ -18,12 +18,13 @@ scikit-surgeryutils
     :target: http://scikit-surgeryutils.readthedocs.io/en/latest/?badge=latest
     :alt: Documentation Status
 
-scikit-surgeryutils is a python project containing a few test and demo
-utilities, based around opencv-contrib-python for video processing and
-PySide2 for GUI windows and widgets.
+scikit-surgeryutils is a python project containing small demo apps,
+and small command apps, the sort of thing that probably doesn't warrant
+its own project.
 
-* sksurgeryvideolag.py - shows a millisecond timer and video image to measure lag
+* sksurgeryvideolag.py - shows a millisecond timer and video image to measure lag.
 * sksurgerycharucotest.py - extracts charuco points and annotates video image with each id detected.
+* sksurgeryrendermodelslikecamera.py - renders a VTK model, using OpenCV camera intrinsics.
 
 scikit-surgeryutils is part of the `SNAPPY`_ software project, developed at the `Wellcome EPSRC Centre for Interventional and Surgical Sciences`_, part of `University College London (UCL)`_.
 
