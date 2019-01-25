@@ -10,10 +10,8 @@ from sksurgeryutils.ui.sksurgeryrendermodelslikecamera_demo import run_demo
 def main(args=None):
     """Entry point for rendermodelslikecamera application"""
 
-    default_camera_interval = 33
-    default_screen_interval = 15
-
-    parser = argparse.ArgumentParser(description='scikit-surgeryrendermodelslikecamera')
+    parser = argparse.ArgumentParser(
+        description='scikit-surgeryrendermodelslikecamera')
 
     parser.add_argument("-f", "--image_file",
                         required=True,
@@ -54,8 +52,8 @@ def main(args=None):
 
     args = parser.parse_args(args)
 
-    run_demo(   args.image_file,
-                args.models,
-                args.extrinsic_matrix,
-                args.intrinsic_matrix,
-                args.points_file)
+    run_demo(args.image_file,
+             args.models,
+             args.extrinsic_matrix,
+             args.intrinsic_matrix,
+             args.points_file)
