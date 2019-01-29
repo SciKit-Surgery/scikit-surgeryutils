@@ -43,6 +43,12 @@ def main(args=None):
                         type=str,
                         help="File of points to render")
 
+    parser.add_argument("-o","--output_file",
+                        required=False,
+                        default=None,
+                        type=str,  
+                        help="File with saved rendered image")
+
     version_string = __version__
     friendly_version_string = version_string if version_string else 'unknown'
     parser.add_argument(
@@ -56,4 +62,5 @@ def main(args=None):
              args.models,
              args.extrinsic_matrix,
              args.intrinsic_matrix,
-             args.points_file)
+             args.points_file,
+             args.output_file)
