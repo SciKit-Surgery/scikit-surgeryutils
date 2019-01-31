@@ -15,7 +15,6 @@ from sksurgeryvtk.models import vtk_surface_model_directory_loader
 from sksurgeryvtk.models import vtk_point_model
 import sksurgeryvtk.camera.vtk_camera_model as cam
 
-
 def run_demo(image_file, model_dir, extrinsics_file,
              intrinsics_file, points_file, output_file):
     """ Demo app, to render an image using a calibrated camera. """
@@ -24,7 +23,7 @@ def run_demo(image_file, model_dir, extrinsics_file,
     img = cv2.imread(image_file)
     vtk_widget = vtk_overlay_window.VTKOverlayWindow()
     vtk_widget.set_video_image(img)
-
+    
     # Use a QLayout to maintain corret aspect ratio of the vtk widget
     # Important: the '0, Qt.AlignCenter' arguments in addWidget are
     #  needed for correct scaling.
@@ -80,18 +79,19 @@ def run_demo(image_file, model_dir, extrinsics_file,
     
     if output_file:
         # Take snapshot of scene and store it
-        #app.exec_()
-        #screen=app.primaryScreen()
-        #rendered_image_map=screen.grabWindow(window.winId())
-        #rendered_image_map.save(output_file,'png')
     
         def take_screenshot():
+            
+            image_array=vtk_widget.convert_scene_to_numpy_array()
+            image_array=np.flip(image_array,0)
+            image_array=image_array[:, :, ::-1]
+            cv2.imwrite(output_file,image_array)
 
-            p = QPixmap.grabWindow(vtk_widget.winId())
-            p.save(output_file, 'png')
+            #p = QPixmap.grabWindow(vtk_widget.winId())
+            #p.save(output_file, 'png')
             app.exit()
 
-        QTimer.singleShot(3000, take_screenshot)
+        QTimer.singleShot(1000, take_screenshot)
 
     
     return sys.exit(app.exec_())
