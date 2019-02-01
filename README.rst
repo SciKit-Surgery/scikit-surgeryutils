@@ -62,6 +62,10 @@ You can run the unit tests by installing and running tox:
     pip install tox
     tox
 
+Encountering Problems?
+^^^^^^^^^^^^^^^^^^^^^^
+Please check list of `common issues`_.
+
 Contributing
 ^^^^^^^^^^^^
 
@@ -97,4 +101,4 @@ Supported by `Wellcome`_ and `EPSRC`_.
 .. _`EPSRC`: https://www.epsrc.ac.uk/
 .. _`contributing guidelines`: https://weisslab.cs.ucl.ac.uk/WEISS/SoftwareRepositories/SNAPPY/scikit-surgeryutils/blob/master/CONTRIBUTING.rst
 .. _`license file`: https://weisslab.cs.ucl.ac.uk/WEISS/SoftwareRepositories/SNAPPY/scikit-surgeryutils/blob/master/LICENSE
-
+.. _`common issues`: https://weisslab.cs.ucl.ac.uk/WEISS/SoftwareRepositories/SNAPPY/scikit-surgery/wikis/Common-Issues
