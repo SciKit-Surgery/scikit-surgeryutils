@@ -29,13 +29,13 @@ def main(args=None):
                         required=False,
                         default=None,
                         type=str,
-                        help="extrinsic matrix file")
+                        help="Camera to world 4x4 matrix file")
 
     parser.add_argument("-i", "--intrinsic_matrix",
                         required=False,
                         default=None,
                         type=str,
-                        help="intrinsic matrix file")
+                        help="Intrinsic 3x3 matrix file")
 
     parser.add_argument("-p", "--points_file",
                         required=False,
@@ -43,18 +43,19 @@ def main(args=None):
                         type=str,
                         help="File of points to render")
 
-    parser.add_argument("-o","--output_file",
+    parser.add_argument("-o", "--output_file",
                         required=False,
                         default=None,
-                        type=str,  
-                        help="File with saved rendered image")
+                        type=str,
+                        help="Output file name to save image to")
 
     version_string = __version__
     friendly_version_string = version_string if version_string else 'unknown'
     parser.add_argument(
         "-v", "--version",
         action='version',
-        version='scikit-surgeryvtk version ' + friendly_version_string)
+        version='sksurgeryrendermodelslikecamera version '
+                + friendly_version_string)
 
     args = parser.parse_args(args)
 
