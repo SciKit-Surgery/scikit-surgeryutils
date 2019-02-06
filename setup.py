@@ -54,7 +54,7 @@ setup(
         'six>=1.10',
         'numpy>=1.11',
         'opencv-contrib-python>=3.4.4',
-        'PySide2>=5.12.0',
+        'PySide2<=5.11.0',
         'scikit-surgeryimage>=0.1.1',
         'scikit-surgeryvtk>=0.3.0',
     ],
