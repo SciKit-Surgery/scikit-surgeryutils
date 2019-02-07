@@ -58,7 +58,7 @@ def main(args=None):
     parser.add_argument(
         "-v", "--version",
         action='version',
-        version='scikit-surgeryvideolag version ' + friendly_version_string)
+        version='sksurgeryvideolag version ' + friendly_version_string)
 
     args = parser.parse_args(args)
 

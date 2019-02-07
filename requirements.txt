@@ -7,4 +7,5 @@ numpy>=1.11
 opencv-contrib-python>=3.4.4
 --extra-index-url http://download.qt.io/snapshots/ci/pyside/5.9/latest/ --trusted-host download.qt.io
 PySide2<=5.11.0
-scikit-surgeryimage>=0.1.1
+scikit-surgeryimage>=0.2.0
+scikit-surgeryvtk>=0.5.1
