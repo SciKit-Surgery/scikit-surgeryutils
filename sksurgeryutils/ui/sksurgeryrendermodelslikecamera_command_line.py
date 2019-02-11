@@ -55,7 +55,7 @@ def main(args=None):
         "-v", "--version",
         action='version',
         version='sksurgeryrendermodelslikecamera version '
-                + friendly_version_string)
+        + friendly_version_string)
 
     args = parser.parse_args(args)
 
