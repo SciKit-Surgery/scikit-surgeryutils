@@ -9,7 +9,6 @@ from PySide2 import QtCore, QtWidgets, QtGui
 from PySide2.QtCore import Slot
 import sksurgeryutils.utils.image_utils as iu
 
-
 # pylint: disable=too-many-instance-attributes
 
 class DemoGui(QtWidgets.QWidget):
