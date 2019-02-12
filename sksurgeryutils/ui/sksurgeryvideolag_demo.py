@@ -27,7 +27,7 @@ class DemoGui(QtWidgets.QWidget):
         self.layout = QtWidgets.QHBoxLayout()
         self.layout.addWidget(self.text)
 
-        if camera < 0:
+        if not isinstance(camera, str) and camera < 0:
             self.cap = None
         else:
             self.cap = cv2.VideoCapture(camera)  # pylint: disable=no-member
@@ -73,7 +73,7 @@ class DemoGui(QtWidgets.QWidget):
         self.elapsed.start()
         self.clock.start()
 
-        if camera >= 0:
+        if isinstance(camera, str) or camera >= 0:
             # pylint: disable=maybe-no-member
             self.grab.timeout.connect(self.update_image)
             self.grab.start()
