@@ -18,7 +18,7 @@ class CharucoDemoGui(QtWidgets.QWidget):
     def __init__(self, camera, width, height, rows, columns, dictionary):
         super().__init__()
 
-        if camera < 0:
+        if not isinstance(camera, str) and camera < 0:
             raise ValueError('The camera number should be >= 0')
 
         if not isinstance(dictionary, int):
