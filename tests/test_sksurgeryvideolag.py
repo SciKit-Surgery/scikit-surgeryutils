@@ -7,13 +7,15 @@ import pytest
 
 def test_sksurgeryvideolag(qtbot):
     """ Basic test to run the widget and make sure everything loads OK."""
-    camera = 0
+
+    # Use input video rather than camera to test
+    input_file = 'tests/data/test_video.avi'
     x = 640
     y = 480
     grab = 33
     milliseconds = 15
     
-    gui = DemoGui(camera, x, y, grab, milliseconds)
+    gui = DemoGui(input_file, x, y, grab, milliseconds)
     gui.show()
     qtbot.addWidget(gui)
 
