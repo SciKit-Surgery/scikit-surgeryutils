@@ -53,7 +53,7 @@ class RenderModelDemoGui(QtWidgets.QWidget):
 
         if output_file:
             vtk_widget.save_scene_to_file(output_file)
-            return 0
+            sys.exit()
 
 
 def run_demo(image_file, model_dir, extrinsics_file,
