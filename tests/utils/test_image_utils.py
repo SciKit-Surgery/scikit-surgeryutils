@@ -20,7 +20,7 @@ def test_image_to_pixel_invalid_because_input_is_greyscale():
         iu.image_to_pixmap(np.zeros((100, 50, 1), dtype=np.uint8))
 
 
-def test_image_to_pixel_valid_rgb_example(setup_qt):
+def test_image_to_pixel_valid_rgb_example():
     blank_image = np.zeros((50, 100, 3), dtype=np.uint8)
     pixmap = iu.image_to_pixmap(blank_image)
     assert pixmap.width() == blank_image.shape[1]

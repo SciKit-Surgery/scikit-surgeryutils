@@ -10,17 +10,18 @@ def test_OverlayOnVideoFeed(setup_qt):
 
     # Try to open a camera. If one isn't available, the rest of test
     # will be skipped.
-    camera_source = 5
+    camera_source = 0
     x = cv2.VideoCapture(camera_source)
     if x.isOpened():
         x.release()
 
         overlay_app = coa.OverlayOnVideoFeed(camera_source)
-        overlay_app.add_vtk_models_from_dir('tests/data/models/Liver')
         overlay_app.start()
         overlay_app.update()
         overlay_app.stop()
 
+    else:
+        pytest.skip("No camera available, skipping.")
 
 
 def test_OverlayBaseAppRaisesNotImplementedError(setup_qt):
