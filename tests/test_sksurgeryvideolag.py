@@ -4,6 +4,7 @@
 
 from sksurgeryutils.ui.sksurgeryvideolag_demo import DemoGui
 import pytest
+import sys
 
 def test_sksurgeryvideolag(qtbot):
     """ Basic test to run the widget and make sure everything loads OK."""
