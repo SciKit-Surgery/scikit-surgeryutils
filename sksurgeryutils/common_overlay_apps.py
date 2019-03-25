@@ -63,32 +63,53 @@ class OverlayBaseApp():
 class OverlayOnVideoFeed(OverlayBaseApp):
     """
     Uses the acquired video feed as the background image,
-    with no additional processing.
+    with no additional processing. Can also record a video of the scene.
     """
+
+    def __init__(self, video_source, output_filename=None):
+        super().__init__(video_source)
+        self.output_filename = output_filename
+        self.video_writer = None
+
     def update(self):
+        """ Get the next frame of input and write to file (if enabled). """
         _, self.img = self.video_source.read()
         self.vtk_overlay_window.set_video_image(self.img)
         self.vtk_overlay_window._RenderWindow.Render()
 
         if self.save_frame:
-            output_frame = self.vtk_overlay_window.convert_scene_to_numpy_array()
-            output_frame = cv2.cvtColor(output_frame, cv2.COLOR_RGB2BGR)
-            self.writer.write_frame(output_frame, self.video_source.timestamp)
+            output_frame = self.get_output_frame()
+            self.video_writer.write_frame(output_frame,
+                                          self.video_source.timestamp)
+
+    def get_output_frame(self):
+        """ Get the output frame to write in numpy format."""
+        output_frame = \
+                self.vtk_overlay_window.convert_scene_to_numpy_array()
+        output_frame = cv2.cvtColor(output_frame, cv2.COLOR_RGB2BGR)
+
+        return output_frame
 
     def on_record_start(self):
         """ Start recording data on each frame update.
         It is expected that this will be triggered using a Qt signal e.g. from
         a button click. (see sksurgerydavinci.ui.Viewers for examples) """
-        fname = datetime.datetime.now().strftime("%Y-%m-%d.%H-%M-%S") + '.avi'
-        dims = (self.vtk_overlay_window.width(), self.vtk_overlay_window.height())
 
-        self.writer = TimestampedVideoWriter(fname, self.update_rate, dims)
+        # Set the filename to current date/time if no name specified.
+        if not self.output_filename:
+            self.output_filename = 'outputs/' + \
+                datetime.datetime.now().strftime("%Y-%m-%d.%H-%M-%S") + '.avi'
+
+        output_frame = self.get_output_frame()
+        height, width = output_frame.shape[:2]
+        self.video_writer = TimestampedVideoWriter(self.output_filename,
+                                                   self.update_rate, width,
+                                                   height)
         self.save_frame = True
+        logging.debug("Recording started.")
 
     def on_record_stop(self):
         """ Stop recording data. """
         self.save_frame = False
-        self.writer.close()
-
-
-
+        self.video_writer.close()
+        logging.debug("Recording stopped.")
