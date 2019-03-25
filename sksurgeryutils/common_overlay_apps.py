@@ -2,9 +2,13 @@
 
 #pylint: disable=no-member, no-name-in-module, protected-access
 # coding=utf-8
+import datetime
+import logging
 import cv2
 
 from PySide2.QtCore import QTimer
+from sksurgeryimage.acquire.video_source import TimestampedVideoSource
+from sksurgeryimage.acquire.video_writer import TimestampedVideoWriter
 from sksurgeryvtk.widgets.vtk_overlay_window import VTKOverlayWindow
 from sksurgeryvtk.models.vtk_surface_model_directory_loader \
     import VTKSurfaceModelDirectoryLoader
@@ -19,10 +23,13 @@ class OverlayBaseApp():
     """
     def __init__(self, video_source):
         self.vtk_overlay_window = VTKOverlayWindow()
-        self.video_source = cv2.VideoCapture(video_source)
+        self.video_source = TimestampedVideoSource(video_source)
         self.update_rate = 30
         self.img = None
         self.timer = None
+        self.save_frame = None
+        self.prev_time = datetime.datetime.now()
+        self.now_time = 0
 
     def start(self):
         """Show the overlay widget and
@@ -64,3 +71,32 @@ class OverlayOnVideoFeed(OverlayBaseApp):
         _, self.img = self.video_source.read()
         self.vtk_overlay_window.set_video_image(self.img)
         self.vtk_overlay_window._RenderWindow.Render()
+
+        if self.save_frame:
+            output_frame = self.vtk_overlay_window.convert_scene_to_numpy_array()
+            output_frame = cv2.cvtColor(output_frame, cv2.COLOR_RGB2BGR)
+            self.writer.write_frame(output_frame, self.video_source.timestamp)
+        
+        self.now_time = datetime.datetime.now()
+        t_diff = self.now_time - self.prev_time
+        print(1000 * t_diff.total_seconds())
+
+        self.prev_time = self.now_time
+
+    def on_record_start(self):
+        """ Start recording data on each frame update.
+        It is expected that this will be triggered using a Qt signal e.g. from
+        a button click. (see sksurgerydavinci.ui.Viewers for examples) """
+        fname = datetime.datetime.now().strftime("%Y-%m-%d.%H-%M-%S") + '.avi'
+        dims = (self.vtk_overlay_window.width(), self.vtk_overlay_window.height())
+
+        self.writer = TimestampedVideoWriter(fname, self.update_rate, dims)
+        self.save_frame = True
+
+    def on_record_stop(self):
+        """ Stop recording data. """
+        self.save_frame = False
+        self.writer.close()
+
+
+
