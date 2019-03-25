@@ -28,8 +28,6 @@ class OverlayBaseApp():
         self.img = None
         self.timer = None
         self.save_frame = None
-        self.prev_time = datetime.datetime.now()
-        self.now_time = 0
 
     def start(self):
         """Show the overlay widget and
@@ -76,12 +74,6 @@ class OverlayOnVideoFeed(OverlayBaseApp):
             output_frame = self.vtk_overlay_window.convert_scene_to_numpy_array()
             output_frame = cv2.cvtColor(output_frame, cv2.COLOR_RGB2BGR)
             self.writer.write_frame(output_frame, self.video_source.timestamp)
-        
-        self.now_time = datetime.datetime.now()
-        t_diff = self.now_time - self.prev_time
-        print(1000 * t_diff.total_seconds())
-
-        self.prev_time = self.now_time
 
     def on_record_start(self):
         """ Start recording data on each frame update.
