@@ -70,15 +70,15 @@ def test_OverlayOnVideoFeed_from_webcam(setup_qt):
     overlay_app.stop()
 
 def test_OverlayBaseAppRaisesNotImplementedError(setup_qt):
-    """
-    Test will only run if there is a camera avilable
-    """
+
     class ErrorApp(coa.OverlayBaseApp):
 
         def something(self):
             pass
 
     with pytest.raises(NotImplementedError):
-        overlay_app = ErrorApp(0)
+        input_file = 'tests/data/100x50_100_frames.avi'
+
+        overlay_app = ErrorApp(input_file)
         overlay_app.update()
 
