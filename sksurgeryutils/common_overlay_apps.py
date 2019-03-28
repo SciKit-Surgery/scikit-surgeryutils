@@ -70,11 +70,35 @@ class OverlayOnVideoFeed(OverlayBaseApp):
         super().__init__(video_source)
         self.output_filename = output_filename
         self.video_writer = None
+        self.crop = False
+
+    def set_roi(self, roi):
+
+        logging.debug("Setting ROI: {}".format(roi))
+        start_x, start_y = roi[0]
+        end_x, end_y = roi[1]
+
+        if end_x > start_x and end_y > start_y:
+
+            self.start_x, self.start_y = start_x, start_y
+            self.end_x, self.end_y = end_x, end_y
+            self.crop = True
+
+        else:
+            self.crop = False
 
     def update(self):
         """ Get the next frame of input and write to file (if enabled). """
         _, self.img = self.video_source.read()
-        self.vtk_overlay_window.set_video_image(self.img)
+
+        if self.crop:
+            self.vtk_overlay_window.set_video_image(self.img[self.start_y:self.end_y,
+                                                             self.start_x:self.end_x,
+                                                             :])
+
+        else:
+            self.vtk_overlay_window.set_video_image(self.img)
+
         self.vtk_overlay_window._RenderWindow.Render()
 
         if self.save_frame:
