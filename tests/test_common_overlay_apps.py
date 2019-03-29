@@ -1,17 +1,18 @@
 # -*- coding: utf-8 -*-
 import cv2
 import pytest
+import mock
 import numpy as np
 import sksurgeryutils.common_overlay_apps as coa
 
-def test_OverlayOnVideoFeed_from_file(setup_qt):
+def test_OverlayOnVideoFeedCropRecord_from_file(setup_qt):
 
     # Try to open a camera. If one isn't available, the rest of test
     # will be skipped.
     input_file = 'tests/data/100x50_100_frames.avi'
 
     out_file = 'tests/output/overlay_test.avi'
-    overlay_app = coa.OverlayOnVideoFeed(input_file, out_file)
+    overlay_app = coa.OverlayOnVideoFeedCropRecord(input_file, out_file)
 
     # Start app and get a frame from input, so that
     # the window is showing something, before we start
@@ -39,7 +40,7 @@ def test_OverlayOnVideoFeed_from_file(setup_qt):
 
     output_video.release()
 
-def test_OverlayOnVideoFeed_from_webcam(setup_qt):
+def test_OverlayOnVideoFeedCropRecord_from_webcam(setup_qt):
     """
     Test will only run if there is a camera avilable.
     """
@@ -53,8 +54,9 @@ def test_OverlayOnVideoFeed_from_webcam(setup_qt):
     
     cam.release()
     
-    out_file = 'tests/output/overlay_on_webcam_test.avi'
-    overlay_app = coa.OverlayOnVideoFeed(0, out_file)
+    # Don't pass an output filename as a parameter, so that
+    # the code to generate a filename from current date/time is executed.
+    overlay_app = coa.OverlayOnVideoFeedCropRecord(0)
 
     # Start app and get a frame from input, so that
     # the window is showing something, before we start
@@ -81,4 +83,20 @@ def test_OverlayBaseAppRaisesNotImplementedError(setup_qt):
 
         overlay_app = ErrorApp(input_file)
         overlay_app.update()
+
+roi = [(25, 25), (50, 50)]
+@mock.patch('sksurgeryutils.common_overlay_apps.ImageCropper.crop')
+def test_OverlayOnVideoFeedCropRecord_set_roi(mock_crop, setup_qt):
+        mock_crop.return_value = roi
+        
+        input_file = 'tests/data/100x50_100_frames.avi'
+        overlay_app = coa.OverlayOnVideoFeedCropRecord(input_file)
+        overlay_app.update() # Get a frame so that we can crop it
+        overlay_app.set_roi()
+        overlay_app.update() # This should apply the roi to the next frame
+
+        expected_shape = (roi[1][0] - roi[0][0], roi[1][1] - roi[0][1])
+        assert overlay_app.vtk_overlay_window.input.shape[:2] == expected_shape
+
+
 
