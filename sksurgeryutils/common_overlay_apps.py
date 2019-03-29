@@ -150,4 +150,3 @@ class OverlayOnVideoFeedCropRecord(OverlayBaseApp):
         self.save_frame = False
         self.video_writer.close()
         logging.debug("Recording stopped.")
-        
