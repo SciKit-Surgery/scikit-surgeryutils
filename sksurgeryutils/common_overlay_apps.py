@@ -23,9 +23,9 @@ class OverlayBaseApp():
 
     :param video_source: OpenCV compatible video source (int or filename)
     """
-    def __init__(self, video_source):
+    def __init__(self, video_source, dims=None):
         self.vtk_overlay_window = VTKOverlayWindow()
-        self.video_source = TimestampedVideoSource(video_source)
+        self.video_source = TimestampedVideoSource(video_source, dims)
         self.update_rate = 30
         self.img = None
         self.timer = None
@@ -85,8 +85,8 @@ class OverlayOnVideoFeedCropRecord(OverlayBaseApp):
                                used as the filename.
     """
 
-    def __init__(self, video_source, output_filename=None):
-        super().__init__(video_source)
+    def __init__(self, video_source, output_filename=None, dims=None):
+        super().__init__(video_source, dims)
         self.output_filename = output_filename
         self.video_writer = None
         self.roi = None
@@ -95,7 +95,6 @@ class OverlayOnVideoFeedCropRecord(OverlayBaseApp):
         """ Get the next frame of input, crop and/or
             write to file (if either enabled). """
         _, self.img = self.video_source.read()
-
         if self.roi:
             start_x, start_y = self.roi[0]
             end_x, end_y = self.roi[1]
