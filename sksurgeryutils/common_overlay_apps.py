@@ -92,7 +92,7 @@ class OverlayOnVideoFeedCropRecord(OverlayBaseApp):
         self.roi = None
 
     def update(self):
-        """ Get the next frame of input, crop and/or 
+        """ Get the next frame of input, crop and/or
             write to file (if either enabled). """
         _, self.img = self.video_source.read()
 
@@ -140,8 +140,8 @@ class OverlayOnVideoFeedCropRecord(OverlayBaseApp):
         output_frame = self.get_output_frame()
         height, width = output_frame.shape[:2]
         self.video_writer = TimestampedVideoWriter(self.output_filename,
-                                                    self.update_rate, width,
-                                                    height)
+                                                   self.update_rate, width,
+                                                   height)
         self.save_frame = True
         logging.debug("Recording started.")
 
@@ -150,3 +150,4 @@ class OverlayOnVideoFeedCropRecord(OverlayBaseApp):
         self.save_frame = False
         self.video_writer.close()
         logging.debug("Recording stopped.")
+        
