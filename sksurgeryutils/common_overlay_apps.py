@@ -65,7 +65,24 @@ class OverlayBaseApp():
 class OverlayOnVideoFeed(OverlayBaseApp):
     """
     Uses the acquired video feed as the background image,
-    with no additional processing. Can also record a video of the scene.
+    with no additional processing.
+    """
+
+    def update(self):
+        """ Get the next frame of input and display it. """
+        _, self.img = self.video_source.read()
+        self.vtk_overlay_window.set_video_image(self.img)
+        self.vtk_overlay_window._RenderWindow.Render()
+
+
+class OverlayOnVideoFeedCropRecord(OverlayBaseApp):
+    """ Add cropping of the incoming video feed, and the ability to
+        record the vtk_overlay_window.
+
+       :param video_source: OpenCV compatible video source (int or filename)
+       :param output_filename: Location of output video file when recording.
+                               If none specified, the current date/time is
+                               used as the filename.
     """
 
     def __init__(self, video_source, output_filename=None):
@@ -74,14 +91,9 @@ class OverlayOnVideoFeed(OverlayBaseApp):
         self.video_writer = None
         self.roi = None
 
-    def set_roi(self):
-        """Crop the incoming video stream using ImageCropper."""
-        #pylint:disable=attribute-defined-outside-init
-        self.roi = ImageCropper().crop(self.img)
-        logging.debug("Setting ROI: %i", self.roi)
-
     def update(self):
-        """ Get the next frame of input and write to file (if enabled). """
+        """ Get the next frame of input, crop and/or 
+            write to file (if either enabled). """
         _, self.img = self.video_source.read()
 
         if self.roi:
@@ -100,6 +112,12 @@ class OverlayOnVideoFeed(OverlayBaseApp):
             output_frame = self.get_output_frame()
             self.video_writer.write_frame(output_frame,
                                           self.video_source.timestamp)
+
+    def set_roi(self):
+        """Crop the incoming video stream using ImageCropper."""
+        #pylint:disable=attribute-defined-outside-init
+        self.roi = ImageCropper().crop(self.img)
+        logging.debug("Setting ROI: %i", self.roi)
 
     def get_output_frame(self):
         """ Get the output frame to write in numpy format."""
@@ -122,8 +140,8 @@ class OverlayOnVideoFeed(OverlayBaseApp):
         output_frame = self.get_output_frame()
         height, width = output_frame.shape[:2]
         self.video_writer = TimestampedVideoWriter(self.output_filename,
-                                                   self.update_rate, width,
-                                                   height)
+                                                    self.update_rate, width,
+                                                    height)
         self.save_frame = True
         logging.debug("Recording started.")
 
