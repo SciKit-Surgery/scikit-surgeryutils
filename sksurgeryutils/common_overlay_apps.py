@@ -75,17 +75,9 @@ class OverlayOnVideoFeed(OverlayBaseApp):
     def set_roi(self, roi):
 
         logging.debug("Setting ROI: {}".format(roi))
-        start_x, start_y = roi[0]
-        end_x, end_y = roi[1]
-
-        if end_x > start_x and end_y > start_y:
-
-            self.start_x, self.start_y = start_x, start_y
-            self.end_x, self.end_y = end_x, end_y
-            self.crop = True
-
-        else:
-            self.crop = False
+        self.start_x, self.start_y = roi[0]
+        self.end_x, self.end_y = roi[1]
+        self.crop = True
 
     def update(self):
         """ Get the next frame of input and write to file (if enabled). """
