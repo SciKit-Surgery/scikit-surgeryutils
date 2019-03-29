@@ -9,6 +9,8 @@ import cv2
 from PySide2.QtCore import QTimer
 from sksurgeryimage.acquire.video_source import TimestampedVideoSource
 from sksurgeryimage.acquire.video_writer import TimestampedVideoWriter
+from sksurgeryimage.ui.ImageCropper import ImageCropper
+
 from sksurgeryvtk.widgets.vtk_overlay_window import VTKOverlayWindow
 from sksurgeryvtk.models.vtk_surface_model_directory_loader \
     import VTKSurfaceModelDirectoryLoader
@@ -70,30 +72,23 @@ class OverlayOnVideoFeed(OverlayBaseApp):
         super().__init__(video_source)
         self.output_filename = output_filename
         self.video_writer = None
-        self.crop = False
+        self.roi = None
 
-    def set_roi(self, roi):
-
-        logging.debug("Setting ROI: {}".format(roi))
-        start_x, start_y = roi[0]
-        end_x, end_y = roi[1]
-
-        if end_x > start_x and end_y > start_y:
-
-            self.start_x, self.start_y = start_x, start_y
-            self.end_x, self.end_y = end_x, end_y
-            self.crop = True
-
-        else:
-            self.crop = False
+    def set_roi(self):
+        """Crop the incoming video stream using ImageCropper."""
+        #pylint:disable=attribute-defined-outside-init
+        self.roi = ImageCropper().crop(self.img)
+        logging.debug("Setting ROI: %i", self.roi)
 
     def update(self):
         """ Get the next frame of input and write to file (if enabled). """
         _, self.img = self.video_source.read()
 
-        if self.crop:
-            self.vtk_overlay_window.set_video_image(self.img[self.start_y:self.end_y,
-                                                             self.start_x:self.end_x,
+        if self.roi:
+            start_x, start_y = self.roi[0]
+            end_x, end_y = self.roi[1]
+            self.vtk_overlay_window.set_video_image(self.img[start_y:end_y,
+                                                             start_x:end_x,
                                                              :])
 
         else:
