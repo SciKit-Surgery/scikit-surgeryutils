@@ -7,7 +7,7 @@ import cv2
 from cv2 import aruco
 from PySide2 import QtCore, QtWidgets
 from PySide2.QtCore import Slot
-import sksurgeryimage.calibration.aruco as ar
+import sksurgeryimage.calibration.charuco as ar
 import sksurgeryutils.utils.image_utils as iu
 
 # pylint: disable=too-many-instance-attributes
