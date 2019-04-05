@@ -149,3 +149,49 @@ class OverlayOnVideoFeedCropRecord(OverlayBaseApp):
         self.save_frame = False
         self.video_writer.close()
         logging.debug("Recording stopped.")
+
+
+class DuplicateOverlayWindow(OverlayOnVideoFeedCropRecord):
+    """
+    Set the background of vtk_overlay_window to duplicate
+    that of another vtk_overlay_window.
+
+    Example usage:
+    video_source = 0
+    source_window = OverlayOnVideoFeedCropRecord(video_source)
+
+    duplicate_window = DuplicateOverlayWindow()
+    duplicate_window.set_source_window(source_window)
+
+    """
+    def __init__(self):
+
+        #pylint: disable=super-init-not-called
+        self.vtk_overlay_window = VTKOverlayWindow()
+        self.update_rate = 30
+        self.img = None
+        self.timer = None
+        self.source_window = None
+
+    def set_source_window(self, source_window):
+        """ Set the source window.
+        :param source_window: The window that contains the image to copy. """
+        self.source_window = source_window
+
+    def update(self):
+        """ Update the frame with a new background image."""
+
+        self.img = self.source_window.vtk_overlay_window.input
+        self.vtk_overlay_window.set_video_image(self.img)
+
+        self.vtk_overlay_window._RenderWindow.Render()
+
+    def on_record_start(self):
+        """ Don't want to call the base class version, so override."""
+
+
+    def on_record_stop(self):
+        """ Don't want to call the base class version, so override."""
+
+    def set_roi(self):
+        """ Don't want to call the base class version, so override."""

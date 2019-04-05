@@ -98,5 +98,29 @@ def test_OverlayOnVideoFeedCropRecord_set_roi(mock_crop, setup_qt):
         expected_shape = (roi[1][0] - roi[0][0], roi[1][1] - roi[0][1])
         assert overlay_app.vtk_overlay_window.input.shape[:2] == expected_shape
 
+def test_DuplicateOverlayWindow(setup_qt):
+
+    input_file = 'tests/data/100x50_100_frames.avi'
+    overlay_app = coa.OverlayOnVideoFeed(input_file)
+
+    duplicate = coa.DuplicateOverlayWindow()
+    duplicate.set_source_window(overlay_app)
+    
+    overlay_app.update()
+    duplicate.update()
+
+    np.testing.assert_array_equal(overlay_app.img, duplicate.vtk_overlay_window.input)
+
+def test_DuplicateOverlayWindowWithCrop(setup_qt):
+    input_file = 'tests/data/100x50_100_frames.avi'
+    overlay_app = coa.OverlayOnVideoFeedCropRecord(input_file)
+
+    duplicate = coa.DuplicateOverlayWindow()
+    duplicate.set_source_window(overlay_app)
+    
+    overlay_app.update()
+    duplicate.update()
+
+    np.testing.assert_array_equal(overlay_app.img, duplicate.vtk_overlay_window.input)
 
 
