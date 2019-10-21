@@ -1,60 +1,68 @@
 # coding=utf-8
 
-""" Demo app, to render a model from a particular perspective"""
+"""
+App to render a set of models using a calibrated camera.
+"""
+
 import sys
 import cv2
-
-# pylint: disable=import-error
-
-import numpy as np
 from PySide2 import QtWidgets
-from sksurgeryvtk.widgets import vtk_overlay_window
-from sksurgeryvtk.models import vtk_surface_model_directory_loader
-from sksurgeryvtk.models import vtk_point_model
+import sksurgeryvtk.widgets.vtk_rendering_generator as rg
 
 
-def run_demo(image_file, model_dir, extrinsics_file,
-             intrinsics_file, points_file, output_file):
-    """ Demo app, to render an image using a calibrated camera. """
+def split_string(param_string):
+    """
+    Splits a comma separated list of rx,ry,rz,tx,ty,tz to a list of floats.
+    :param param_string: string
+    :return: list of float
+    """
+    result = [0, 0, 0, 0, 0, 0]
+    if param_string is not None:
+        split = param_string.split(',')
+        if len(split) != 6:
+            raise ValueError('List is wrong length:' + str(split))
+        for i in range(6):
+            result[i] = float(split[i])
+    return result
+
+
+def run_demo(models_file,
+             background_image,
+             intrinsic_file,
+             model_to_world,
+             camera_to_world,
+             left_to_right,
+             sigma,
+             clippingrange,
+             output_file):
+
+    """ Demo app, to render a set of models using a calibrated camera. """
     app = QtWidgets.QApplication([])
 
-    vtk_widget = vtk_overlay_window.VTKOverlayWindow()
+    m2w = split_string(model_to_world)
+    c2w = split_string(camera_to_world)
+    l2r = split_string(left_to_right)
+    clip = clippingrange.split(',')
+    if len(clip) != 2:
+        raise ValueError("Clipping range not valid:" + str(clip))
 
-    # Set the video image on the widget.
-    img = cv2.imread(image_file)
-    vtk_widget.set_video_image(img)
+    gen = rg.VTKRenderingGenerator(models_file,
+                                   background_image,
+                                   intrinsic_file,
+                                   m2w,
+                                   c2w,
+                                   l2r,
+                                   sigma
+                                   )
 
-    layout = QtWidgets.QVBoxLayout()
-    layout.setSpacing(0)
-    layout.setMargin(0)
-    layout.addWidget(vtk_widget)
+    gen.set_clipping_range(float(clip[0]), float(clip[1]))
+    gen.show()
 
-    window = QtWidgets.QWidget()
-    window.resize(img.shape[1], img.shape[0])
-    window.setLayout(layout)
-    window.show()
-
-    if points_file:
-        points = np.loadtxt(points_file)
-        vtk_points = vtk_point_model.VTKPointModel(points.astype(np.float),
-                                                   points.astype(np.byte))
-        vtk_widget.add_vtk_actor(vtk_points.actor)
-
-    if model_dir:
-        model_loader = vtk_surface_model_directory_loader. \
-            VTKSurfaceModelDirectoryLoader(model_dir)
-        vtk_widget.add_vtk_models(model_loader.models)
-
-    if extrinsics_file and intrinsics_file:
-
-        intrinsics = np.loadtxt(intrinsics_file, dtype=np.float)
-        extrinsics = np.loadtxt(extrinsics_file)
-
-        vtk_widget.set_camera_matrix(intrinsics)
-        vtk_widget.set_camera_pose(extrinsics)
-
+    img = gen.get_image()
     if output_file:
-        vtk_widget.save_scene_to_file(output_file)
-        return 0
+        bgr = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+        cv2.imwrite(output_file, bgr)
+    else:
+        sys.exit(app.exec_())
 
-    return sys.exit(app.exec_())
+    return 0

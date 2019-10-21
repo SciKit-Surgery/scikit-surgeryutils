@@ -6,6 +6,8 @@
 .coverage
 *.pyc
 .pytest_cache/
+outputs/
+tests/output
 
 # PyInstaller
 build/
