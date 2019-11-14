@@ -11,6 +11,7 @@ import sksurgeryutils.utils.image_utils as iu
 
 # pylint: disable=too-many-instance-attributes
 
+
 class DemoGui(QtWidgets.QWidget):
     """ Demo GUI, with 2 QLabel side by side."""
     def __init__(self, camera, width, height, grab, milliseconds):
