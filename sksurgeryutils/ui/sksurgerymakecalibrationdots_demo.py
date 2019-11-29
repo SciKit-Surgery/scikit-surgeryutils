@@ -26,11 +26,6 @@ def make_calibration_dots(width,
     :param output_file: output file
     """
 
-    # Current calibration grid
-    # 26x19 5mm squares = 25x18 calibration points, 5mm apart = 125x90mm
-    # 19x11 3mm squares = 18x10 calibration points, 3mm apart =  54x30mm
-    # Dot pattern
-    #
     centre_x = (width - 1)/2.0
     centre_y = (height - 1) / 2.0
     half_width = (spacing * (x_dots - 1))/2.0
