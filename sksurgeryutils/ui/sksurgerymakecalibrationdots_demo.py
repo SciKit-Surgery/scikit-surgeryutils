@@ -45,8 +45,8 @@ def make_calibration_dots(width,
 
     for y_index in range(y_dots):
         for x_index in range(x_dots):
-            dot_x = int(centre_x + (y_index * spacing) - half_width)
-            dot_y = int(centre_y + (x_index * spacing) - half_height)
+            dot_x = int(centre_x + (x_index * spacing) - half_width)
+            dot_y = int(centre_y + (y_index * spacing) - half_height)
 
             rad = radius
             big = 2 * rad
