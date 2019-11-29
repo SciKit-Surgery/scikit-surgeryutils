@@ -32,11 +32,23 @@ def main(args=None):
                         type=int,
                         help="Radius of dots in pixels.")
 
-    parser.add_argument("-s", "--spacing",
+    parser.add_argument("-sp", "--spacing",
                         required=False,
                         default=100,
                         type=int,
                         help="Spacing of dots in pixels.")
+
+    parser.add_argument("-sc", "--scaling",
+                        required=False,
+                        default=2,
+                        type=int,
+                        help="Scale factor for larger dots.")
+
+    parser.add_argument("-f", "--fraction",
+                        required=False,
+                        default=0.375,
+                        type=int,
+                        help="Fraction of image to left/top of first big dot.")
 
     parser.add_argument("-xd", "--x_dots",
                         required=False,
@@ -70,6 +82,8 @@ def main(args=None):
                           args.y_size,
                           args.radius,
                           args.spacing,
+                          args.scaling,
+                          args.fraction,
                           args.x_dots,
                           args.y_dots,
                           args.output_file

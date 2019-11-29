@@ -10,6 +10,8 @@ def make_calibration_dots(width,
                           height,
                           radius,
                           spacing,
+                          scaling,
+                          fraction,
                           x_dots,
                           y_dots,
                           output_file
@@ -33,10 +35,10 @@ def make_calibration_dots(width,
 
     image = 255 * np.ones(shape=[height, width], dtype=np.uint8)
 
-    one_third_x = (x_dots // 3) - 1
-    one_third_y = (y_dots // 3) - 1
-    two_third_x = (x_dots - 1) - one_third_x
-    two_third_y = (y_dots - 1) - one_third_y
+    fraction_x = int(x_dots * fraction) - 1
+    fraction_y = int(y_dots * fraction) - 1
+    opposite_fraction_x = (x_dots - 1) - fraction_x
+    opposite_fraction_y = (y_dots - 1) - fraction_y
 
     for y_index in range(y_dots):
         for x_index in range(x_dots):
@@ -44,15 +46,19 @@ def make_calibration_dots(width,
             dot_y = int(centre_y + (y_index * spacing) - half_height)
 
             rad = radius
-            big = 2 * rad
+            big = scaling * rad
 
-            if x_index == one_third_x and y_index == one_third_y:
+            if x_index == fraction_x \
+                    and y_index == fraction_y:
                 rad = big
-            if x_index == one_third_x and y_index == two_third_y:
+            if x_index == fraction_x \
+                    and y_index == opposite_fraction_y:
                 rad = big
-            if x_index == two_third_x and y_index == two_third_y:
+            if x_index == opposite_fraction_x \
+                    and y_index == opposite_fraction_y:
                 rad = big
-            if x_index == two_third_x and y_index == one_third_y:
+            if x_index == opposite_fraction_x \
+                    and y_index == fraction_y:
                 rad = big
 
             cv2.circle(image, (dot_x, dot_y), rad, (0, 0, 0), thickness=-1)
