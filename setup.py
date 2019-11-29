@@ -65,6 +65,7 @@ setup(
             'sksurgeryvideolag=sksurgeryutils.ui.sksurgeryvideolag_command_line:main',
             'sksurgerycharucotest=sksurgeryutils.ui.sksurgerycharucotest_command_line:main',
             'sksurgeryrendermodelslikecamera=sksurgeryutils.ui.sksurgeryrendermodelslikecamera_command_line:main',
+            'sksurgerymakecalibrationdots.py=sksurgeryutils.ui.sksurgerymakecalibrationdots_command_line:main',
         ],
     },
 )
