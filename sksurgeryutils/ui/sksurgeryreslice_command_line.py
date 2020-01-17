@@ -4,7 +4,7 @@
 
 import argparse
 from sksurgeryutils import __version__
-from sksurgeryutils.ui.sksurgerytextoverlay_demo import run_demo
+from sksurgeryutils.ui.sksurgeryreslice_demo import run_demo
 
 def main(args=None):
     """Entry point for sksurgerytextoverlay application"""
@@ -18,6 +18,20 @@ def main(args=None):
         action='version',
         version='sksurgerytextoverlay version ' + friendly_version_string)
 
+    parser.add_argument(
+        "-t", "--tracked",
+        required=False,
+        action="store_true",
+        help="Enable tracked demo")
+
+    parser.add_argument(
+        "-d", "--dicom_dir",
+        required=False,
+        default='tests/data/dicom/LegoPhantom_10slices',
+        type=str,
+        help="DICOM Directory")
+
     args = parser.parse_args(args)
 
-    run_demo()
+    run_demo(args.tracked,
+             args.dicom_dir)

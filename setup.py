@@ -58,6 +58,7 @@ setup(
         'scikit-surgerycore>=0.1.7',
         'scikit-surgeryimage>=0.2.0',
         'scikit-surgeryvtk>=0.12.2',
+        'scikit-surgeryarucotracker>=0.0.4'
     ],
 
     entry_points={
