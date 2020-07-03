@@ -54,11 +54,12 @@ setup(
         'six>=1.10',
         'numpy>=1.11',
         'opencv-contrib-python>=4.1.1.26',
-        'PySide2<=5.13.1',
+        'PySide2<=5.12.0',
         'scikit-surgerycore>=0.1.7',
         'scikit-surgeryimage>=0.2.0',
-        'scikit-surgeryvtk>=0.12.2',
+        'scikit-surgeryvtk>=0.17.0',
         'scikit-surgeryarucotracker>=0.0.4'
+
     ],
 
     entry_points={
