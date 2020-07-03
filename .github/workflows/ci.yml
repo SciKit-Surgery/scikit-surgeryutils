@@ -8,7 +8,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest, windows-latest, macos-latest]
         python-ver: [3.6, 3.7]
         experimental: [false]
         include:
@@ -17,6 +17,9 @@ jobs:
             experimental: true
           - python-ver: 3.8
             os: windows-latest
+            experimental: true
+          - python-ver: 3.8
+            os: macos-latest
             experimental: true
 
     runs-on: ${{ matrix.os }}
@@ -59,19 +62,19 @@ jobs:
           export DISPLAY=":1"
           export LD_LIBRARY_PATH=$pythonLocation"/lib/python3.6/site-packages/PySide2/Qt/plugins/platfoms"
           coverage erase
-          coverage run -a --source ./sksurgeryvtk -m pytest
+          coverage run -a --source ./sksurgeryutils -m pytest
           coverage report -m
 
       - name: Run tests Windows/Mac
         if: contains(matrix.os, 'o')
         run: |
           coverage erase
-          coverage run -a --source ./sksurgeryvtk -m pytest
+          coverage run -a --source ./sksurgeryutils -m pytest
           coverage report -m
 
       - name: Linting
         run: |
-          pylint --rcfile=tests/pylintrc sksurgeryvtk
+          pylint --rcfile=tests/pylintrc sksurgeryutils
 
       - name: Run coveralls
         run: |
