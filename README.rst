@@ -1,4 +1,4 @@
-scikit-surgeryutils
+scikit-surgeryutils 
 ===============================
 
 .. image:: https://github.com/UCL/scikit-surgeryutils /raw/master/project-icon.png
