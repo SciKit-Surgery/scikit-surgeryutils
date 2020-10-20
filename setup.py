@@ -57,7 +57,7 @@ setup(
         'PySide2<=5.12.0',
         'scikit-surgerycore>=0.1.7',
         'scikit-surgeryimage>=0.2.0',
-        'scikit-surgeryvtk>=0.17.0',
+        'scikit-surgeryvtk>=0.19.1',
         'scikit-surgeryarucotracker>=0.0.4'
 
     ],

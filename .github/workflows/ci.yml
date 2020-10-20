@@ -62,14 +62,14 @@ jobs:
           export DISPLAY=":1"
           export LD_LIBRARY_PATH=$pythonLocation"/lib/python${{ matrix.python-version }}/site-packages/PySide2/Qt/plugins/platfoms"
           coverage erase
-          coverage run -a --source ./sksurgeryutils -m pytest
+          coverage run -a --source ./sksurgeryutils -m pytest -vv -s
           coverage report -m
 
       - name: Run tests Windows/Mac
         if: contains(matrix.os, 'o')
         run: |
           coverage erase
-          coverage run -a --source ./sksurgeryutils -m pytest
+          coverage run -a --source ./sksurgeryutils -m pytest -vv -s
           coverage report -m
 
       - name: Linting
