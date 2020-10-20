@@ -49,12 +49,12 @@ def run_demo(models_file,
     gen = rg.VTKRenderingGenerator(models_file,
                                    background_image,
                                    intrinsic_file,
-                                   m2w,
                                    c2w,
                                    l2r,
                                    sigma
                                    )
 
+    gen.set_all_model_to_world(m2w)
     gen.set_clipping_range(float(clip[0]), float(clip[1]))
     gen.show()
 
