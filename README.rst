@@ -21,16 +21,24 @@ scikit-surgeryutils
     :target: http://scikit-surgeryutils .readthedocs.io/en/latest/?badge=latest
     :alt: Documentation Status
 
-scikit-surgeryutils is a python project containing small demo apps,
-and small command apps, the sort of thing that probably doesn't warrant
-its own project.
-
-* sksurgeryvideolag.py - shows a millisecond timer and video image to measure lag.
-* sksurgerycharucotest.py - extracts charuco points and annotates video image with each id detected.
-* sksurgeryrendermodelslikecamera.py - renders a VTK model, using OpenCV camera intrinsics.
 
 scikit-surgeryutils is part of the `SNAPPY`_ software project, developed at the `Wellcome EPSRC Centre for Interventional and Surgical Sciences`_, part of `University College London (UCL)`_.
 
+scikit-surgeryutils containing small demo apps and utilities.
+
+.. features-start
+
+Features/Apps
+----
+* sksurgeryvideolag.py - shows a millisecond timer and video image to measure lag.
+* sksurgerycharucotest.py - extracts charuco points and annotates video image with each id detected.
+* sksurgeryrendermodelslikecamera.py - renders a VTK model, using OpenCV camera intrinsics.
+* sksurgerymakecalibrationdots.py - Create a calibraiton dot pattern.
+* sksurgeryreslice.py - DICOM reslice widget demo.
+* sksurgerytextoverlay.py - VTK text overlay demo.
+* Common overlay apps `<https://scikit-surgerycore.readthedocs.io/en/latest/module_ref.html#module-sksurgeryutils.common_overlay_apps`_ - Examples of common uses of scikit-surgeryvtk's VTKOverlayWindow. Includes overlaying on a video feed, duplicating a feed.
+
+.. features-end
 
 Installing
 ----------
