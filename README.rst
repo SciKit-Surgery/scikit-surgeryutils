@@ -30,13 +30,13 @@ scikit-surgeryutils containing small demo apps and utilities.
 
 Features/Apps
 ----
+* Common overlay apps `<https://scikit-surgerycore.readthedocs.io/en/latest/module_ref.html#module-sksurgeryutils.common_overlay_apps`_ - Examples of common uses of scikit-surgeryvtk's VTKOverlayWindow. Includes overlaying on a video feed, duplicating a feed.
 * sksurgeryvideolag.py - shows a millisecond timer and video image to measure lag.
 * sksurgerycharucotest.py - extracts charuco points and annotates video image with each id detected.
 * sksurgeryrendermodelslikecamera.py - renders a VTK model, using OpenCV camera intrinsics.
 * sksurgerymakecalibrationdots.py - Create a calibraiton dot pattern.
 * sksurgeryreslice.py - DICOM reslice widget demo.
 * sksurgerytextoverlay.py - VTK text overlay demo.
-* Common overlay apps `<https://scikit-surgerycore.readthedocs.io/en/latest/module_ref.html#module-sksurgeryutils.common_overlay_apps`_ - Examples of common uses of scikit-surgeryvtk's VTKOverlayWindow. Includes overlaying on a video feed, duplicating a feed.
 
 .. features-end
 
