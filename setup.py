@@ -67,7 +67,10 @@ setup(
             'sksurgeryvideolag=sksurgeryutils.ui.sksurgeryvideolag_command_line:main',
             'sksurgerycharucotest=sksurgeryutils.ui.sksurgerycharucotest_command_line:main',
             'sksurgeryrendermodelslikecamera=sksurgeryutils.ui.sksurgeryrendermodelslikecamera_command_line:main',
-            'sksurgerymakecalibrationdots.py=sksurgeryutils.ui.sksurgerymakecalibrationdots_command_line:main',
+            'sksurgerymakecalibrationdots=sksurgeryutils.ui.sksurgerymakecalibrationdots_command_line:main',
+            'sksurgeryreslice=sksurgeryutils.ui.sksurgeryreslice_command_line:main',
+            'sksurgerytextoverlay=sksurgeryutils.ui.sksurgerytextoverlay_command_line:main',
+            'sksurgerytransformpolydata=sksurgeryutils.ui.sksurgeryrendermodelslikecamera_command_line:main',
         ],
     },
 )
