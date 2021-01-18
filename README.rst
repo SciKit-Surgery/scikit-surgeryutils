@@ -34,13 +34,13 @@ Features
 
 Command Line Apps
 -----------------
-* sksurgeryvideolag.py - shows a millisecond timer and video image to measure lag.
+* sksurgeryvideolag.py - shows a millisecond timer and video image to crudely measure measure lag.
 * sksurgerycharucotest.py - extracts charuco points and annotates video image with each id detected.
-* sksurgeryrendermodelslikecamera.py - renders a VTK model, using OpenCV camera intrinsics.
+* sksurgeryrendermodelslikecamera.py - renders a VTK model, over background image, using OpenCV camera intrinsics.
 * sksurgerymakecalibrationdots.py - Create a calibraiton dot pattern.
 * sksurgeryreslice.py - DICOM reslice widget demo.
 * sksurgerytextoverlay.py - VTK text overlay demo.
-
+* sksurgerytransformpolydata.py - Read a surface mesh (.vtk,.vtp,.stl,.ply file), transform by 4x4 matrix and write as .vtk.
 .. features-end
 
 Installing
