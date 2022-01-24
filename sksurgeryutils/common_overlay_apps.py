@@ -117,7 +117,7 @@ class OverlayOnVideoFeedCropRecord(OverlayBaseApp):
            Function is depreciated due to moving to opencv-headless
            in sksurgeryvtk
         """
-        raise NotImplemented ("Set Roi function is depreciated and", 
+        raise NotImplementedError ("Set Roi function is depreciated and", 
                 " is not longer implemented in sksurgeryutils")
 
     def get_output_frame(self):
