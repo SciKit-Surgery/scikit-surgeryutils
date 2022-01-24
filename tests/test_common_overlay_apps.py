@@ -91,19 +91,13 @@ def test_OverlayBaseAppRaisesNotImplementedError(setup_qt):
         overlay_app = ErrorApp(input_file)
         overlay_app.update()
 
-roi = [(25, 25), (50, 50)]
-@mock.patch('sksurgeryutils.common_overlay_apps.ImageCropper.crop')
-def test_OverlayOnVideoFeedCropRecord_set_roi(mock_crop, setup_qt):
-        mock_crop.return_value = roi
+def test_OverlayOnVideoFeedCropRecord_set_roi(setup_qt):
         
         input_file = 'tests/data/100x50_100_frames.avi'
         overlay_app = coa.OverlayOnVideoFeedCropRecord(input_file)
         overlay_app.update() # Get a frame so that we can crop it
-        overlay_app.set_roi()
-        overlay_app.update() # This should apply the roi to the next frame
-
-        expected_shape = (roi[1][0] - roi[0][0], roi[1][1] - roi[0][1])
-        assert overlay_app.vtk_overlay_window.input.shape[:2] == expected_shape
+        with pytest.raises(NotImplementedError):
+            overlay_app.set_roi()
 
 def test_DuplicateOverlayWindow(setup_qt):
 
