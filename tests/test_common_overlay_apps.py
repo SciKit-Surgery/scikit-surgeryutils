@@ -96,7 +96,7 @@ def test_OverlayOnVideoFeedCropRecord_set_roi(setup_qt):
         input_file = 'tests/data/100x50_100_frames.avi'
         overlay_app = coa.OverlayOnVideoFeedCropRecord(input_file)
         overlay_app.update() # Get a frame so that we can crop it
-        with pytest.raises(NotImplementedError):
+        with pytest.raises(RuntimeError):
             overlay_app.set_roi()
 
 def test_DuplicateOverlayWindow(setup_qt):

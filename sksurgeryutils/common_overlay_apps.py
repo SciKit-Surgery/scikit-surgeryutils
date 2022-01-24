@@ -88,21 +88,13 @@ class OverlayOnVideoFeedCropRecord(OverlayBaseApp):
         super().__init__(video_source, dims)
         self.output_filename = output_filename
         self.video_writer = None
-        self.roi = None
 
     def update(self):
         """ Get the next frame of input, crop and/or
             write to file (if either enabled). """
         _, self.img = self.video_source.read()
-        if self.roi:
-            start_x, start_y = self.roi[0]
-            end_x, end_y = self.roi[1]
-            self.vtk_overlay_window.set_video_image(self.img[start_y:end_y,
-                                                             start_x:end_x,
-                                                             :])
 
-        else:
-            self.vtk_overlay_window.set_video_image(self.img)
+        self.vtk_overlay_window.set_video_image(self.img)
 
         self.vtk_overlay_window._RenderWindow.Render()
 
@@ -111,13 +103,14 @@ class OverlayOnVideoFeedCropRecord(OverlayBaseApp):
             self.video_writer.write_frame(output_frame,
                                           self.video_source.timestamp)
 
-    def set_roi(self):
+    def set_roi(self): #pylint: disable=no-self-use
         """
            Crop the incoming video stream using ImageCropper.
            Function is depreciated due to moving to opencv-headless
-           in sksurgeryvtk
+           in sksurgeryvtk. I've left it in for the minute in case
+           any one is using it without my knowlegde
         """
-        raise NotImplementedError ("Set Roi function is depreciated and", 
+        raise RuntimeError ("Set Roi function is depreciated and",
                 " is not longer implemented in sksurgeryutils")
 
     def get_output_frame(self):
