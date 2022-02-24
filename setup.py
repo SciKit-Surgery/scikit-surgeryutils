@@ -17,7 +17,7 @@ setup(
     description='scikit-surgeryutils - Tests/demos utilities, based around opencv-contrib and PySide2',
     long_description=long_description,
     long_description_content_type='text/x-rst',
-    url='https://github.com/UCL/scikit-surgeryutils',
+    url='https://github.com/SciKit-Surgery/scikit-surgeryutils',
     author='Matt Clarkson',
     author_email='m.clarkson@ucl.ac.uk',
     license='BSD-3 license',

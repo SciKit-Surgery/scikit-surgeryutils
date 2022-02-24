@@ -6,7 +6,7 @@ scikit-surgeryutils documentation
    :start-after: .. features-start
    :end-before: .. features-end
 
-`Source code <https://github.com/UCL/scikit-surgeryutils/>`_ is avaialble on GitHub.
+`Source code <https://github.com/SciKit-Surgery/scikit-surgeryutils/>`_ is availalble on GitHub.
 
 .. toctree::
    :maxdepth: 2
