@@ -1,23 +1,22 @@
 # coding=utf-8
 
-""" CLI for sksurgerycalibration video calibration checker. """
+""" CLI for sksurgeryvideocalibrationchecker. """
 
 import argparse
 
 from sksurgerycore.configuration.configuration_manager import \
         ConfigurationManager
 from sksurgerycalibration import __version__
-from sksurgerycalibration.ui.video_calibration_checker_app \
+from sksurgeryutils.ui.sksurgeryvideocalibrationchecker_app \
     import run_video_calibration_checker
 
 
 def main(args=None):
 
-    """ Entry point for bardVideoCalibrationChecker application. """
+    """ Entry point for sksurgeryvideocalibrationchecker application. """
 
     parser = argparse.ArgumentParser(
-        description='SciKit-Surgery Calibration '
-                    'Video Calibration Checker')
+        description='sksurgeryvideocalibrationchecker')
 
     parser.add_argument("-c", "--config",
                         required=True,
@@ -39,7 +38,8 @@ def main(args=None):
     parser.add_argument(
         "--version",
         action='version',
-        version='scikit-surgerycalibration version ' + friendly_version_string)
+        version='scikit-sksurgeryvideocalibrationchecker version '
+                + friendly_version_string)
 
     args = parser.parse_args(args)
 

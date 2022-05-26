@@ -4,11 +4,22 @@
 
 import os
 import cv2
+from PySide2 import QtWidgets
 import sksurgeryimage.calibration.chessboard_point_detector as cpd
 import sksurgerycalibration.video.video_calibration_driver_mono as mc
+import sksurgeryutils.common_overlay_apps as coa
 
 # pylint:disable=too-many-nested-blocks,too-many-branches
 
+
+class CalibrationWindow(coa.OverlayBaseApp):
+    def __init__(self,
+                 configuration=None,
+                 save_dir=None,
+                 prefix=None):
+        """
+
+        """
 
 def run_video_calibration(configuration = None, save_dir = None, prefix = None):
     """
@@ -16,7 +27,7 @@ def run_video_calibration(configuration = None, save_dir = None, prefix = None):
     source and scikit-surgerycalibration.
     Currently only chessboards are supported
 
-    :param config_file: location of a configuration file.
+    :param configuration: dictionary of configuration data.
     :param save_dir: optional directory name to dump calibrations to.
     :param prefix: file name prefix when saving
 
@@ -67,6 +78,12 @@ def run_video_calibration(configuration = None, save_dir = None, prefix = None):
     print("Press 'q' to quit and 'c' to capture an image.")
     print("Minimum number of views to calibrate:" + str(min_num_views))
 
+    app = QtWidgets.QApplication([])
+    live_widget = vow.VTKOverlayWindow()
+    live_widget.show()
+    captured_widget = vow.VTKOverlayWindow()
+    app.exec_()
+
     frames_sampled = 0
     while True:
         frame_ok, frame = cap.read()
@@ -79,7 +96,7 @@ def run_video_calibration(configuration = None, save_dir = None, prefix = None):
             key = ord('q')
         else:
             if interactive:
-                cv2.imshow("live image", frame)
+                live_widget.set_video_image(frame)
                 key = cv2.waitKey(keypress_delay)
             else:
                 if frames_sampled % sample_frequency == 0:
@@ -95,7 +112,8 @@ def run_video_calibration(configuration = None, save_dir = None, prefix = None):
                                                 img_pts,
                                                 number_points)
                 if interactive:
-                    cv2.imshow("detected points", img)
+                    captured_widget.set_video_image(img)
+                    captured_widget.show()
 
                 number_of_views = calibrator.get_number_of_views()
                 print("Number of frames = " + str(number_of_views))
