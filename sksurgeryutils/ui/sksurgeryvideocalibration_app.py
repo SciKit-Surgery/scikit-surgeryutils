@@ -1,12 +1,11 @@
 # coding=utf-8
 
-""" Functions to run video calibration, in interactive or non-interactive mode. """
+""" Functions to run video calibration. """
 
 import os
 import sys
-import cv2
-import time
 from datetime import datetime
+import cv2
 from PySide2 import QtWidgets
 from PySide2.QtWidgets import QWidget, QHBoxLayout, QApplication
 from PySide2.QtCore import QTimer
@@ -14,7 +13,7 @@ from sksurgeryvtk.widgets.vtk_overlay_window import VTKOverlayWindow
 import sksurgeryimage.calibration.chessboard_point_detector as cpd
 import sksurgerycalibration.video.video_calibration_driver_mono as mc
 
-# pylint:disable=too-many-nested-blocks,too-many-branches
+# pylint: disable=protected-access,unused-argument,unused-variable
 
 
 class CalibrationDriver:
@@ -44,7 +43,8 @@ class CalibrationDriver:
         # but each would have their own parameters etc.
         method = configuration.get("method", "chessboard")
         if method != "chessboard":
-            raise ValueError("Only chessboard calibration is currently supported")
+            raise ValueError("Only chessboard calibration"
+                             " is currently supported")
 
         source = configuration.get("source", 0)
         window_size = configuration.get("window size", None)
@@ -164,7 +164,8 @@ class CalibrationWidget(QWidget):
         self.vtk_overlay_window = VTKOverlayWindow()
         self.layout.addWidget(self.vtk_overlay_window)
 
-        self.keypress_delay_in_milliseconds = configuration.get("keypress delay", 1000)
+        self.keypress_delay_in_milliseconds \
+            = configuration.get("keypress delay", 1000)
 
         self.vtk_overlay_window.AddObserver("KeyPressEvent",
                                             self.on_key_press_event)
@@ -200,7 +201,7 @@ class CalibrationWidget(QWidget):
 
     def on_key_press_event(self, obj, event):
         """
-        Called when a key is pressed, if 'q', exit the app, if 'c' capture image.
+        Called when a key is pressed, if 'q', exit, if 'c' capture image.
         """
         if self.vtk_overlay_window.GetKeySym() == 'q':
             print("Detected 'q' key press, exiting.")
@@ -284,7 +285,7 @@ class CalibrationManager:
 
     def run(self):
         """
-        Main loop that will process frames from the video source, until no frames.
+        Process frames from the video source, until no frames.
         """
         while True:
 
