@@ -1,6 +1,7 @@
 """Tests for command line application """
 import pytest
-from sksurgerycalibration.ui.video_calibration_command_line import main
+from sksurgeryutils.ui.sksurgeryvideocalibration_command_line import main
+
 
 def test_cl_no_config():
     """ Run command line app with no config file. The parser should

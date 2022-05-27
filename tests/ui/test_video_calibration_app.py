@@ -2,7 +2,7 @@
 import copy
 import os
 import pytest
-from sksurgerycalibration.ui.video_calibration_app import run_video_calibration
+from sksurgeryutils.ui.sksurgeryvideocalibration_app import run_video_calibration
 
 config = { "method": "chessboard",
     "source": "tests/data/laparoscope_calibration/left/left.ogv",
@@ -13,6 +13,7 @@ config = { "method": "chessboard",
     "interactive" : False,
     "sample frequency" : 2
 }
+
 
 def _clean_up(prefix):
     """Helper to clean up calibration results"""
@@ -33,11 +34,13 @@ def test_with_save_prefix():
     run_video_calibration(config, prefix = "testjunk")
     _clean_up("testjunk")
 
+
 def test_with_save_directory():
     """ Run command line app with a save prefix"""
     run_video_calibration(config, save_dir = "testjunk")
     _clean_up("testjunk/calib")
     os.rmdir("testjunk")
+
 
 def test_with_invalid_method():
     """Should throw a value error if method is not supported"""
@@ -46,12 +49,14 @@ def test_with_invalid_method():
     with pytest.raises(ValueError):
         run_video_calibration(duff_config)
 
+
 def test_with_invalid_capture():
     """Should throw a runtime error if we can't open video capture"""
     duff_config = copy.deepcopy(config)
     duff_config['source'] = 'bad source'
     with pytest.raises(RuntimeError):
         run_video_calibration(duff_config)
+
 
 def test_with_custome_window_size():
     """We should be able to set the window size in config"""

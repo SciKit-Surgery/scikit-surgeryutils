@@ -1,8 +1,8 @@
 """Tests for command line application """
 import copy
 import pytest
-from sksurgerycalibration.ui.video_calibration_checker_app import \
-                run_video_calibration_checker
+from sksurgeryutils.ui.sksurgeryvideocalibrationchecker_app import \
+    run_video_calibration_checker
 
 config = { "method": "chessboard",
     "source": "tests/data/laparoscope_calibration/left/left.ogv",
@@ -13,6 +13,7 @@ config = { "method": "chessboard",
     "interactive" : False,
     "sample frequency" : 2
 }
+
 
 def test_with_no_config():
     """It shouldn't run with no configuration file"""
