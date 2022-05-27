@@ -56,9 +56,10 @@ setup(
         'opencv-contrib-python-headless>=4.1.1.26',
         'PySide2<5.15.0',
         'scikit-surgerycore>=0.1.7',
-        'scikit-surgeryimage>=0.2.0',
-        'scikit-surgeryvtk>=0.19.1',
-        'scikit-surgeryarucotracker>=0.0.4'
+        'scikit-surgeryimage>=0.10.1',
+        'scikit-surgeryvtk>=1.0.6',
+        'scikit-surgeryarucotracker>=0.2.7',
+        'scikit-surgerycalibration>=0.2.1'
     ],
 
     entry_points={

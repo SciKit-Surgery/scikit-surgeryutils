@@ -10,4 +10,4 @@ scikit-surgeryimage>=0.10.1
 scikit-surgeryvtk>=1.0.6
 scikit-surgeryarucotracker>=0.2.7
 scikit-surgerycalibration>=0.2.1
-PySide2
+PySide2<5.15.0
