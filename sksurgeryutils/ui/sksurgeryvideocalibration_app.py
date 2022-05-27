@@ -6,6 +6,7 @@ import os
 import sys
 import cv2
 import time
+from datetime import datetime
 from PySide2 import QtWidgets
 from PySide2.QtWidgets import QWidget, QHBoxLayout, QApplication
 from PySide2.QtCore import QTimer
@@ -46,11 +47,12 @@ class CalibrationDriver:
             raise ValueError("Only chessboard calibration is currently supported")
 
         source = configuration.get("source", 0)
-        corners = configuration.get("corners", [14, 10])
-        corners = (corners[0], corners[1])
-        size = configuration.get("square size in mm", 3)
         window_size = configuration.get("window size", None)
-        min_num_views = configuration.get("minimum number of views", 5)
+        size = configuration.get("square size in mm", 3)
+
+        corners = configuration.get("corners", [14, 10])
+        self.corners = (corners[0], corners[1])
+        self.min_num_views = configuration.get("minimum number of views", 5)
 
         self.cap = cv2.VideoCapture(source)
         if not self.cap.isOpened():
@@ -73,9 +75,8 @@ class CalibrationDriver:
 
         self.frame_ok = False
         self.frame = None
-        self.annotated = None
 
-        print("Minimum number of views to calibrate:" + str(min_num_views))
+        print("Minimum number of views to calibrate:" + str(self.min_num_views))
 
     def shutdown(self):
         """
@@ -109,10 +110,10 @@ class CalibrationDriver:
 
         if number_points > 0:
             img_pts = self.calibrator.video_data.image_points_arrays[-1]
-            self.annotated = cv2.drawChessboardCorners(self.frame,
-                                                       self.corners,
-                                                       img_pts,
-                                                       number_points)
+            annotated = cv2.drawChessboardCorners(self.frame,
+                                                  self.corners,
+                                                  img_pts,
+                                                  number_points)
             number_of_views = self.calibrator.get_number_of_views()
             print("Number of frames = " + str(number_of_views))
 
@@ -163,7 +164,7 @@ class CalibrationWidget(QWidget):
         self.vtk_overlay_window = VTKOverlayWindow()
         self.layout.addWidget(self.vtk_overlay_window)
 
-        self.keypress_delay_in_milliseconds = configuration.get("keypress delay", 10)
+        self.keypress_delay_in_milliseconds = configuration.get("keypress delay", 1000)
 
         self.vtk_overlay_window.AddObserver("KeyPressEvent",
                                             self.on_key_press_event)
@@ -173,6 +174,8 @@ class CalibrationWidget(QWidget):
 
         self.update_rate = 30
         self.do_capture = False
+        self.annotation_time = None
+        self.show_annotation = False
 
         print("Press 'q' to quit and 'c' to capture an image.")
 
@@ -202,7 +205,7 @@ class CalibrationWidget(QWidget):
         if self.vtk_overlay_window.GetKeySym() == 'q':
             print("Detected 'q' key press, exiting.")
             self.on_exit_selected()
-        elif self.overlay_window.GetKeySym() == 'c':
+        elif self.vtk_overlay_window.GetKeySym() == 'c':
             print("Detected 'c' key press, capturing image.")
             self.do_capture = True
 
@@ -227,7 +230,16 @@ class CalibrationWidget(QWidget):
             print("Failed to read frame")
             return
 
-        self.vtk_overlay_window.set_video_image(frame)
+        time_now = datetime.now()
+
+        if self.annotation_time is not None:
+            time_diff = time_now - self.annotation_time
+            seconds = time_diff.total_seconds()
+            if seconds > self.keypress_delay_in_milliseconds / 1000.0:
+                self.show_annotation = False
+
+        if not self.show_annotation:
+            self.vtk_overlay_window.set_video_image(frame)
 
         if self.do_capture:
 
@@ -240,13 +252,14 @@ class CalibrationWidget(QWidget):
 
             self.vtk_overlay_window.set_video_image(annotated_image)
             self.vtk_overlay_window.Render()
-            self.update()
+            self.repaint()
 
-            time.sleep(self.keypress_delay_in_milliseconds / 1000.0)
+            self.annotation_time = datetime.now()
+            self.show_annotation = True
 
         else:
             self.vtk_overlay_window.Render()
-            self.update()
+            self.repaint()
 
 
 class CalibrationManager:
