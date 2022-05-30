@@ -1,136 +1,192 @@
 # coding=utf-8
 
-""" Application to detect chessboards, and assess calibration accuracy. """
+""" Functions to assess calibration accuracy, in a VTKOverlayWindow. """
 
+import os
+import sys
 import numpy as np
 import cv2
-import sksurgeryimage.calibration.chessboard_point_detector as cpd
+from PySide2 import QtWidgets
 from sksurgerycalibration.video.video_calibration_params import \
                 MonoCalibrationParams
+import sksurgeryutils.ui.sksurgeryvideocalibration_app as vca
 
-# pylint: disable=too-many-branches
 
-def run_video_calibration_checker(configuration = None,
-                calib_dir = './', prefix = None):
+class CalibrationCheckerDriver(vca.BaseDriver):
     """
-    Application that detects a calibration pattern, runs
-    solvePnP, and prints information out to enable you to
-    check how accurate a calibration actually is.
-
-    :param config_file: location of configuration file.
-    :param calib_dir: the location of the calibration directory you want to
-        check
-    :param prefix: the file prefix for the calibration data you want to check
-
-    :raises ValueError: if no configuration provided.
-    :raises RuntimeError: if can't open source.
+    Main app logic to check the accuracy of a calibration.
     """
-    if configuration is None:
-        raise ValueError("Calibration Checker requires a config file")
+    def __init__(self,
+                 configuration,
+                 source,
+                 calibration_dir=None,
+                 file_prefix=None
+                 ):
+        """
+        Constructor must throw if anything at all wrong.
+        """
+        super().__init__(configuration=configuration,
+                         source=source)
 
-    source = configuration.get("source", 0)
-    corners = configuration.get("corners", [14, 10])
-    corners = (corners[0], corners[1])
-    size = configuration.get("square size in mm", 3)
-    window_size = configuration.get("window size", None)
-    keypress_delay = configuration.get("keypress delay", 10)
-    interactive = configuration.get("interactive", True)
-    sample_frequency = configuration.get("sample frequency", 1)
+        if calibration_dir is None:
+            raise ValueError("Calibration dir must not be None")
+        if not isinstance(calibration_dir, str):
+            raise ValueError("Calibration dir should be a string")
+        if len(calibration_dir) == 0:
+            raise ValueError("Calibration dir is an empty string")
+        if not os.path.isdir(calibration_dir):
+            raise ValueError("Calibration dir is not a dir")
 
-    existing_calibration = MonoCalibrationParams()
-    existing_calibration.load_data(calib_dir, prefix, halt_on_ioerror = False)
-    intrinsics = existing_calibration.camera_matrix
-    distortion = existing_calibration.dist_coeffs
+        # Parameters specific to calibration checking, as base class
+        # has all the stuff for video capture etc.
+        existing_calibration = MonoCalibrationParams()
+        existing_calibration.load_data(calibration_dir,
+                                       file_prefix,
+                                       halt_on_ioerror=False)
+        self.intrinsics = existing_calibration.camera_matrix
+        self.distortion = existing_calibration.dist_coeffs
 
-    cap = cv2.VideoCapture(source)
-    if not cap.isOpened():
-        raise RuntimeError("Failed to open camera:" + str(source))
+        self.captured_positions = np.zeros((0, 3))
 
-    if window_size is not None:
-        cap.set(cv2.CAP_PROP_FRAME_WIDTH, window_size[0])
-        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, window_size[1])
-        print("Video feed set to ("
-              + str(window_size[0]) + " x " + str(window_size[1]) + ")")
-    else:
-        width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-        height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-        print("Video feed defaults to ("
-              + str(width) + " x " + str(height) + ")")
+        print("Loaded calibration from:" + str(calibration_dir))
 
-    # For detecting the chessboard points
-    detector = cpd.ChessboardPointDetector(corners, size)
-    num_pts = corners[0] * corners[1]
-    captured_positions = np.zeros((0, 3))
-    frames_sampled = 0
-    while True:
-        frame_ok, frame = cap.read()
+    def process_frame(self):
+        """
+        Main logic for what to extract and what to measure.
 
-        key = None
-        frames_sampled += 1
+        :return: number_points, annotated
+        :rtype: int, numpy.ndarray
+        """
+        number_points = 0
+        annotated = None
 
-        if not frame_ok:
-            print("Reached end of video source or read failure.")
-            key = ord('q')
-        else:
-            undistorted = cv2.undistort(frame, intrinsics, distortion)
-            if interactive:
-                cv2.imshow("live image", undistorted)
-                key = cv2.waitKey(keypress_delay)
-            else:
-                if frames_sampled % sample_frequency == 0:
-                    key = ord('a')
+        undistorted = cv2.undistort(self.frame,
+                                    self.intrinsics, self.distortion)
 
-        if key == ord('q'):
-            break
+        _, object_points, image_points = \
+            self.detector.get_points(undistorted)
 
-        image_points = np.array([])
-        if key in [ord('c'), ord('m'), ord('t'), ord('a')]:
-            _, object_points, image_points = \
-                detector.get_points(undistorted)
-
-        pnp_ok = False
-        img = None
-        tvec = None
         if image_points.shape[0] > 0:
-            img = cv2.drawChessboardCorners(undistorted, corners,
-                                            image_points,
-                                            num_pts)
-            if interactive:
-                cv2.imshow("detected points", img)
+
+            number_points = self.corners[0] * self.corners[1]
+
+            annotated = cv2.drawChessboardCorners(undistorted,
+                                                  self.corners,
+                                                  image_points,
+                                                  number_points)
 
             pnp_ok, _, tvec = cv2.solvePnP(object_points,
                                            image_points,
-                                           intrinsics,
+                                           self.intrinsics,
                                            None)
-        if pnp_ok:
-            captured_positions = np.append(captured_positions,
-                                           np.transpose(tvec),
-                                           axis=0)
 
-        if key in [ord('t'), ord('a')] and captured_positions.shape[0] > 1:
-            print(str(captured_positions[-1][0]
-                  - captured_positions[-2][0]) + " "
-                  + str(captured_positions[-1][1]
-                  - captured_positions[-2][1]) + " "
-                  + str(captured_positions[-1][2]
-                  - captured_positions[-2][2]) + " ")
-        if key in [ord('m'), ord('a')] and \
-                            captured_positions.shape[0] > 1:
-            print("Mean:"
-                  + str(np.mean(captured_positions, axis=0)))
-            print("StdDev:"
-                  + str(np.std(captured_positions, axis=0)))
+            if pnp_ok:
 
-        if key in [ord('c'), ord('a')] and pnp_ok:
-            print("Pose" + str(tvec[0][0]) + " "
-                  + str(tvec[1][0]) + " "
-                  + str(tvec[2][0]))
+                self.captured_positions = np.append(self.captured_positions,
+                                                    np.transpose(tvec),
+                                                    axis=0)
 
-        if not pnp_ok and image_points.shape[0] > 0:
-            print("Failed to solve PnP")
+                if self.captured_positions.shape[0] > 1:
 
-        if image_points.shape[0] == 0:
-            print("Failed to detect points")
+                    if self.key_pressed == 't':
+                        print("Translation: "
+                              + str(self.captured_positions[-1][0]
+                                  - self.captured_positions[-2][0]) + " "
+                              + str(self.captured_positions[-1][1]
+                                  - self.captured_positions[-2][1]) + " "
+                              + str(self.captured_positions[-1][2]
+                                  - self.captured_positions[-2][2]) + " ")
 
-    cap.release()
-    cv2.destroyAllWindows()
+                    if self.key_pressed == 'm':
+                        print("Mean:"
+                              + str(np.mean(self.captured_positions, axis=0)))
+                        print("StdDev:"
+                              + str(np.std(self.captured_positions, axis=0)))
+
+                if self.key_pressed == 'c':
+                    print("Pose" + str(tvec[0][0]) + " "
+                          + str(tvec[1][0]) + " "
+                          + str(tvec[2][0]))
+            else:
+                print("Failed to solve PnP.")
+        else:
+            print("Failed to detect points.")
+
+        return number_points, annotated
+
+
+class CalibrationCheckerWidget(vca.BaseCalibrationWidget):
+    """
+    Widget to provide calibration checking logic in interactive mode.
+    """
+    def __init__(self,
+                 configuration,
+                 driver):
+        """
+        Widget class to provide GUI event handling for the Checking process.
+        """
+        super().__init__(configuration, driver)
+
+        print("Press 'q' to quit.")
+        print("Press 'c' to capture an image.")
+        print("Press 't' to measure translation.")
+        print("Press 'm' to measure the mean/std-dev of a fixed position.")
+
+    def on_key_press_event(self, obj, event):
+        """
+        Called when a key is pressed.
+        """
+        if self.vtk_overlay_window.GetKeySym() == 'q':
+            print("Detected 'q' key press, exiting.")
+            self.on_exit_selected()
+        elif self.vtk_overlay_window.GetKeySym() == 'c':
+            print("Detected 'c' key press, capturing data.")
+            self.driver.set_key_pressed('c')
+        elif self.vtk_overlay_window.GetKeySym() == 't':
+            print("Detected 't' key press, measuring translation.")
+            self.driver.set_key_pressed('t')
+        elif self.vtk_overlay_window.GetKeySym() == 'm':
+            print("Detected 'm' key press, measuring mean/std-dev.")
+            self.driver.set_key_pressed('m')
+
+
+def run_video_calibration_checker(configuration,
+                                  source,
+                                  calib_dir,
+                                  file_prefix,
+                                  noninteractive
+                                  ):
+    """
+    Checks how accurate an OpenCV calibration is. Essentially,
+    you move a chessboard by a known amount, e.g. 5mm, and
+    we use PnP to work out how far the camera has moved relative
+    to the chessboard.
+
+    It's a demo app, so currently, only chessboards are supported.
+
+    :param configuration: dictionary of configuration data.
+    :param source: OpenCV video source, either webcam number or file name.
+    :param calib_dir: Directory containing a calibration.
+    :param file_prefix: optional file name prefix when loading.
+    :param noninteractive: If True we run without GUI.
+    """
+    driver = CalibrationCheckerDriver(configuration,
+                                      source,
+                                      calib_dir,
+                                      file_prefix
+                                      )
+    if noninteractive:
+
+        manager = vca.CalibrationManager(configuration=configuration,
+                                         driver=driver)
+        manager.run()
+
+    else:
+
+        app = QtWidgets.QApplication([])
+
+        widget = CalibrationCheckerWidget(configuration=configuration,
+                                          driver=driver)
+        widget.show()
+        widget.start()
+        sys.exit(app.exec_())

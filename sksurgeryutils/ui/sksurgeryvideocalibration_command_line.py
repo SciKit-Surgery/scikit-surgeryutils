@@ -10,7 +10,7 @@ from sksurgeryutils.ui.sksurgeryvideocalibration_app import \
 
 
 def main(args=None):
-    """Entry point for sksurgeryvideocalibration. """
+    """ Entry point for sksurgeryvideocalibration. """
 
     parser = argparse.ArgumentParser(description='sksurgeryvideocalibration')
 

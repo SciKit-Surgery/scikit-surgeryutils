@@ -1,6 +1,6 @@
 # coding=utf-8
 
-""" Functions to run video calibration. """
+""" Functions to run video calibration, in a VTKOverlayWindow (i.e. Qt). """
 
 import os
 import sys
@@ -12,51 +12,31 @@ from PySide2.QtCore import QTimer
 from sksurgeryvtk.widgets.vtk_overlay_window import VTKOverlayWindow
 import sksurgeryimage.calibration.chessboard_point_detector as cpd
 import sksurgerycalibration.video.video_calibration_driver_mono as mc
+import sksurgeryutils.utils.opencv_video_capture_utils as vcu
 
 # pylint: disable=protected-access,unused-argument,unused-variable
 
 
-class CalibrationDriver:
+class BaseDriver:
     """
-    Main calibration logic in a separate class, so it can be
-    used either in interactive mode, or not.
+    Base class for both CalibrationDriver and CalibrationCheckerDriver.
+    Separate from Qt stuff, so it can be used in interactive mode or not.
     """
     def __init__(self,
                  configuration,
-                 source,
-                 output_dir=None,
-                 file_prefix=None
-                 ):
+                 source):
         """
         Constructor must throw if anything at all wrong.
+
+        :raises ValueError, RuntimeError.
         """
-        # These are mandatory, and normally specified on command line.
         if configuration is None:
             raise ValueError(
                 "You must provide a configuration file. "
                 "(see config/video_chessboard_conf.json for example).")
 
-        if source is None:
-            raise RuntimeError("OpenCV source is None. "
-                               "Should be a device number or filename.")
-
-        if not isinstance(source, str) and not isinstance(source, int):
-            raise RuntimeError("OpenCV source is neither str nor int.")
-
-        if isinstance(source, str):
-            if not os.path.isfile(source):
-                raise RuntimeError("OpenCV source is a string, but not a file.")
-
-        if isinstance(source, int):
-            if source < 0:
-                raise RuntimeError("OpenCV source is an int, but negative.")
-
-        # These two are optional, so can be None.
-        self.output_dir = output_dir
-        self.file_prefix = file_prefix
-
-        if self.file_prefix is not None and self.output_dir is None:
-            self.output_dir = os.getcwd()
+        # Throws RuntimeError if anything wrong.
+        source = vcu.validate_camera_source(source)
 
         # For now just doing chessboards.
         # The underlying framework works for several point detectors,
@@ -66,37 +46,29 @@ class CalibrationDriver:
             raise ValueError("Only chessboard calibration"
                              " is currently supported")
 
+        # The video source either defaults to whatever size OpenCV
+        # gives, or you can specify the size in the config file.
         window_size = configuration.get("window size", None)
-        size = configuration.get("square size in mm", 3)
+        self.cap = vcu.open_video_source(source, window_size)
 
+        # These are the key parameters for the chessboard.
+        size = configuration.get("square size in mm", 3)
         corners = configuration.get("corners", [14, 10])
         self.corners = (corners[0], corners[1])
-        self.min_num_views = configuration.get("minimum number of views", 5)
 
-        self.cap = cv2.VideoCapture(source)
-        if not self.cap.isOpened():
-            raise RuntimeError("Failed to open camera "
-                               "from source:" + str(source))
-
-        if window_size is not None:
-            self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, window_size[0])
-            self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, window_size[1])
-            print("Video feed set to ("
-                  + str(window_size[0]) + " x " + str(window_size[1]) + ")")
-        else:
-            width = int(self.cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-            height = int(self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-            print("Video feed defaults to ("
-                  + str(width) + " x " + str(height) + ")")
-
+        # .. and hence we can now create a chessboard point detector.
         self.detector = cpd.ChessboardPointDetector(corners, size)
-        self.calibrator = mc.MonoVideoCalibrationDriver(self.detector,
-                                                        corners[0] * corners[1])
 
         self.frame_ok = False
         self.frame = None
 
-        print("Minimum number of views to calibrate:" + str(self.min_num_views))
+        self.key_pressed = None
+
+    def set_key_pressed(self, key_pressed):
+        self.key_pressed = key_pressed
+
+    def get_key_pressed(self):
+        return self.key_pressed
 
     def shutdown(self):
         """
@@ -118,9 +90,51 @@ class CalibrationDriver:
 
         return self.frame_ok, self.frame
 
-    def extract_points(self):
+    def process_frame(self):
         """
-        Extracts the points from the image.
+        Derived classes must implement this.
+        """
+        raise NotImplementedError("Derived classes must implement "
+                                  "process_frame()")
+
+
+class CalibrationDriver(BaseDriver):
+    """
+    Main calibration logic in a separate class, so it can be
+    used either in interactive mode, or not.
+    """
+    def __init__(self,
+                 configuration,
+                 source,
+                 output_dir=None,
+                 file_prefix=None
+                 ):
+        """
+        Constructor must throw if anything at all wrong.
+        """
+        super().__init__(configuration=configuration,
+                         source=source)
+
+        # These two are optional, so can be None.
+        self.output_dir = output_dir
+        self.file_prefix = file_prefix
+
+        if self.file_prefix is not None and self.output_dir is None:
+            self.output_dir = os.getcwd()
+
+        # Parameters specific to calibration.
+        self.calibrator = mc.MonoVideoCalibrationDriver(self.detector,
+                                                        self.corners[0] *
+                                                        self.corners[1])
+
+        self.min_num_views = configuration.get("minimum number of views", 5)
+
+        print("Minimum number of views to calibrate:" + str(self.min_num_views))
+
+    def process_frame(self):
+        """
+        Extracts the points from the image, and if we have enough frames,
+        will automatically recalibrate.
 
         :return: number_points, annotated
         :rtype: int, numpy.ndarray
@@ -161,23 +175,26 @@ class CalibrationDriver:
         return number_points, annotated
 
 
-class CalibrationWidget(QWidget):
+class BaseCalibrationWidget(QWidget):
     """
-    Widget to provide calibration in interactive mode.
+    Base class Widget to provide calibration methods in interactive mode.
     """
-    def __init__(self,
-                 configuration,
-                 source,
-                 output_dir=None,
-                 file_prefix=None):
+    def __init__(self, configuration, driver):
         """
-        Constructor creates the internal CalibrationDriver.
+        Constructor must throw if any issues.
+
+        :param configuration: Dictionary of configuration data.
+        :param driver: class derived from BaseDriver
         """
         super().__init__()
-        self.driver = CalibrationDriver(configuration,
-                                        source,
-                                        output_dir,
-                                        file_prefix)
+
+        if configuration is None:
+            raise ValueError("Configuration data is None")
+
+        if driver is None:
+            raise ValueError("Driver is None")
+
+        self.driver = driver
 
         self.layout = QHBoxLayout(self)
         self.layout.setContentsMargins(0, 0, 0, 0)
@@ -196,11 +213,8 @@ class CalibrationWidget(QWidget):
         self.timer.timeout.connect(self.update_view)
 
         self.update_rate = 30
-        self.do_capture = False
         self.annotation_time = None
         self.show_annotation = False
-
-        print("Press 'q' to quit and 'c' to capture an image.")
 
     def start(self):
         """
@@ -221,17 +235,6 @@ class CalibrationWidget(QWidget):
         """
         self.vtk_overlay_window._RenderWindow.Finalize()
 
-    def on_key_press_event(self, obj, event):
-        """
-        Called when a key is pressed, if 'q', exit, if 'c' capture image.
-        """
-        if self.vtk_overlay_window.GetKeySym() == 'q':
-            print("Detected 'q' key press, exiting.")
-            self.on_exit_selected()
-        elif self.vtk_overlay_window.GetKeySym() == 'c':
-            print("Detected 'c' key press, capturing image.")
-            self.do_capture = True
-
     def on_exit_selected(self):
         """
         Opportunity to do any clear up, before exiting app.
@@ -245,7 +248,7 @@ class CalibrationWidget(QWidget):
 
     def update_view(self):
         """
-        Called by base class, to do the main UI window update.
+        Called by QTimer, to do the main UI window update.
         """
         frame_ok, frame = self.driver.grab_frame()
 
@@ -264,10 +267,10 @@ class CalibrationWidget(QWidget):
         if not self.show_annotation:
             self.vtk_overlay_window.set_video_image(frame)
 
-        if self.do_capture:
+        if self.driver.get_key_pressed() is not None:
 
-            number_of_points, annotated_image = self.driver.extract_points()
-            self.do_capture = False
+            number_of_points, annotated_image = self.driver.process_frame()
+            self.driver.set_key_pressed(None)
 
             if number_of_points < 1:
                 print("Failed to detect points")
@@ -285,45 +288,76 @@ class CalibrationWidget(QWidget):
             self.repaint()
 
 
+class CalibrationWidget(BaseCalibrationWidget):
+    """
+    Widget to provide calibration logic in interactive mode.
+    """
+    def __init__(self,
+                 configuration,
+                 driver):
+        """
+        Widget class to provide GUI event handling for the Calibration process.
+        """
+        super().__init__(configuration, driver)
+
+        print("Press 'q' to quit and 'c' to capture an image.")
+
+    def on_key_press_event(self, obj, event):
+        """
+        Called when a key is pressed, if 'q', exit, if 'c' capture image.
+        """
+        if self.vtk_overlay_window.GetKeySym() == 'q':
+            print("Detected 'q' key press, exiting.")
+            self.on_exit_selected()
+        elif self.vtk_overlay_window.GetKeySym() == 'c':
+            print("Detected 'c' key press, capturing data.")
+            self.driver.set_key_pressed('c')
+
+
 class CalibrationManager:
     """
-    For non-interactive mode, reads from a video file, and
+    For non-interactive mode, reads from an OpenCV VideoCapture, and
     samples every few frames, as determined by "sample frequency" in config.
     """
     def __init__(self,
                  configuration,
-                 source,
-                 output_dir=None,
-                 file_prefix=None
+                 driver
                  ):
         """
-        Constructor creates the internal CalibrationDriver.
+        General manager class that will repeatedly call driver.grab_frame()
+        and then trigger driver.extract_points() every few frames.
+
+        :param configuration: Dictionary of configuration parameters.
+        :param driver: Class derived from BaseDriver.
         """
-        self.driver = CalibrationDriver(configuration,
-                                        source,
-                                        output_dir,
-                                        file_prefix)
+        if driver is None:
+            raise ValueError("Driver is None")
+        if configuration is None:
+            raise ValueError("Configuration is None")
+
+        self.driver = driver
 
         self.sample_frequency = configuration.get("sample frequency", 1)
-        self.frames_sampled = 0
 
     def run(self):
         """
         Process frames from the video source, until no frames.
         """
+        frames_sampled = 0
+
         while True:
 
-            frame_ok, frame = self.driver.grab_frame()
+            frame_ok, _ = self.driver.grab_frame()
 
             if not frame_ok:
                 print("Reached end of video source or read failure.")
                 break
 
-            self.frames_sampled += 1
+            frames_sampled += 1
 
-            if self.frames_sampled % self.sample_frequency == 0:
+            if frames_sampled % self.sample_frequency == 0:
 
-                number_of_points, _ = self.driver.extract_points()
+                number_of_points, _ = self.driver.process_frame()
 
                 if number_of_points < 1:
                     print("Failed to detect points")
@@ -345,20 +379,17 @@ def run_video_calibration(configuration,
     :param source: OpenCV video source, either webcam number or file name.
     :param output_dir: optional directory name to dump calibrations to.
     :param file_prefix: optional file name prefix when saving.
-    :param noninteractive: If True, we expect a file to process,
-    and run without GUI.
+    :param noninteractive: If True we run without GUI.
     """
+    driver = CalibrationDriver(configuration,
+                               source,
+                               output_dir,
+                               file_prefix)
 
-    # These two are mandatory, and should be enforced by command line
-    # parser. But this method may be called from unit tests, or outside
-    # of the command line parser.
     if noninteractive:
 
         manager = CalibrationManager(configuration=configuration,
-                                     source=source,
-                                     output_dir=output_dir,
-                                     file_prefix=file_prefix
-                                     )
+                                     driver=driver)
         manager.run()
 
     else:
@@ -366,10 +397,7 @@ def run_video_calibration(configuration,
         app = QtWidgets.QApplication([])
 
         widget = CalibrationWidget(configuration=configuration,
-                                   source=source,
-                                   output_dir=output_dir,
-                                   file_prefix=file_prefix
-                                   )
+                                   driver=driver)
         widget.show()
         widget.start()
         sys.exit(app.exec_())
