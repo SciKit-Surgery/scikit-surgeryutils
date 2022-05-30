@@ -65,9 +65,15 @@ class BaseDriver:
         self.key_pressed = None
 
     def set_key_pressed(self, key_pressed):
+        """
+        Set's member variable key_pressed.
+        """
         self.key_pressed = key_pressed
 
     def get_key_pressed(self):
+        """
+        Get's member variable key_pressed.
+        """
         return self.key_pressed
 
     def shutdown(self):

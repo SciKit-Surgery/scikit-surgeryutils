@@ -23,7 +23,7 @@ def main(args=None):
                              "for example).")
 
     parser.add_argument("-s", "--source",
-                        required=True,
+                        required=False,
                         type=str,
                         default="0",
                         help="OpenCV source. (USB camera number, or filename).")

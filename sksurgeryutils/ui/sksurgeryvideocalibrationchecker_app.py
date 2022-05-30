@@ -11,6 +11,8 @@ from sksurgerycalibration.video.video_calibration_params import \
                 MonoCalibrationParams
 import sksurgeryutils.ui.sksurgeryvideocalibration_app as vca
 
+# pylint: disable=unused-argument
+
 
 class CalibrationCheckerDriver(vca.BaseDriver):
     """
