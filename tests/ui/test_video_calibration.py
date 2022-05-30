@@ -22,6 +22,6 @@ def test_cl_with_config():
     Run command line app with config.
     """
     main(['-c', 'config/video_chessboard_conf.json',
-          '-ni',
-          '-s', 'tests/data/laparoscope_calibration/left/left.ogv'
+          '-s', 'tests/data/laparoscope_calibration/left/left.ogv',
+          '-ni'
           ])
