@@ -7,6 +7,7 @@ import mock
 import numpy as np
 import sksurgeryutils.common_overlay_apps as coa
 
+
 def test_OverlayOnVideoFeedCropRecord_from_file(setup_qt, tmpdir):
 
     in_github_ci = os.environ.get('CI')
@@ -47,6 +48,7 @@ def test_OverlayOnVideoFeedCropRecord_from_file(setup_qt, tmpdir):
 
     output_video.release()
 
+
 def test_OverlayOnVideoFeedCropRecord_from_webcam(setup_qt):
     """
     Test will only run if there is a camera avilable.
@@ -77,6 +79,7 @@ def test_OverlayOnVideoFeedCropRecord_from_webcam(setup_qt):
 
     overlay_app.on_record_stop()
     overlay_app.stop()
+
 
 def test_OverlayBaseWidgetRaisesNotImplementedError(setup_qt):
 
