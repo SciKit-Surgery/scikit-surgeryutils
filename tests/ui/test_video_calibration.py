@@ -4,8 +4,10 @@ from sksurgeryutils.ui.sksurgeryvideocalibration_command_line import main
 
 
 def test_cl_no_config():
-    """ Run command line app with no config file. The parser should
-    raise SystemExit due to missing required argument"""
+    """
+    Run command line app with no config file. The parser should
+    raise SystemExit due to missing required argument.
+    """
     with pytest.raises(SystemExit) as pytest_wrapped_e:
         main([])
 
@@ -16,5 +18,10 @@ def test_cl_no_config():
 
 
 def test_cl_with_config():
-    """ Run command line app with config """
-    main(['-c', 'config/recorded_chessboard.json'])
+    """
+    Run command line app with config.
+    """
+    main(['-c', 'config/video_chessboard_conf.json',
+          '-ni',
+          '-s', 'tests/data/laparoscope_calibration/left/left.ogv'
+          ])

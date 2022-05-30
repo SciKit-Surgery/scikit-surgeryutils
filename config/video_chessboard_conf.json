@@ -1,7 +1,8 @@
 {
     "method": "chessboard",
-    "source": 0,
     "corners": [14, 10],
     "square size in mm": 6,
-    "minimum number of views": 5
+    "minimum number of views": 5,
+    "keypress delay in ms": 1000,
+    "sample frequency" : 1
 }

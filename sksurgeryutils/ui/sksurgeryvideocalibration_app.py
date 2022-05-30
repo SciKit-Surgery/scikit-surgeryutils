@@ -19,24 +19,44 @@ import sksurgerycalibration.video.video_calibration_driver_mono as mc
 class CalibrationDriver:
     """
     Main calibration logic in a separate class, so it can be
-    used either in interactive (widget) mode, or not.
+    used either in interactive mode, or not.
     """
     def __init__(self,
-                 configuration=None,
-                 save_dir=None,
-                 prefix=None
+                 configuration,
+                 source,
+                 output_dir=None,
+                 file_prefix=None
                  ):
         """
         Constructor must throw if anything at all wrong.
         """
-        self.save_dir = save_dir
-        self.prefix = prefix
-
-        if self.prefix is not None and self.save_dir is None:
-            self.save_dir = "./"
-
+        # These are mandatory, and normally specified on command line.
         if configuration is None:
-            configuration = {}
+            raise ValueError(
+                "You must provide a configuration file. "
+                "(see config/video_chessboard_conf.json for example).")
+
+        if source is None:
+            raise RuntimeError("OpenCV source is None. "
+                               "Should be a device number or filename.")
+
+        if not isinstance(source, str) and not isinstance(source, int):
+            raise RuntimeError("OpenCV source is neither str nor int.")
+
+        if isinstance(source, str):
+            if not os.path.isfile(source):
+                raise RuntimeError("OpenCV source is a string, but not a file.")
+
+        if isinstance(source, int):
+            if source < 0:
+                raise RuntimeError("OpenCV source is an int, but negative.")
+
+        # These two are optional, so can be None.
+        self.output_dir = output_dir
+        self.file_prefix = file_prefix
+
+        if self.file_prefix is not None and self.output_dir is None:
+            self.output_dir = os.getcwd()
 
         # For now just doing chessboards.
         # The underlying framework works for several point detectors,
@@ -46,7 +66,6 @@ class CalibrationDriver:
             raise ValueError("Only chessboard calibration"
                              " is currently supported")
 
-        source = configuration.get("source", 0)
         window_size = configuration.get("window size", None)
         size = configuration.get("square size in mm", 3)
 
@@ -56,7 +75,8 @@ class CalibrationDriver:
 
         self.cap = cv2.VideoCapture(source)
         if not self.cap.isOpened():
-            raise RuntimeError("Failed to open camera.")
+            raise RuntimeError("Failed to open camera "
+                               "from source:" + str(source))
 
         if window_size is not None:
             self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, window_size[0])
@@ -126,15 +146,15 @@ class CalibrationDriver:
                 print("Distortion matrix is:")
                 print(params.dist_coeffs)
 
-                if self.save_dir is not None:
+                if self.output_dir is not None:
 
-                    if not os.path.isdir(self.save_dir):
-                        os.makedirs(self.save_dir)
+                    if not os.path.isdir(self.output_dir):
+                        os.makedirs(self.output_dir)
 
-                    self.calibrator.save_data(self.save_dir,
-                                              self.prefix)
-                    self.calibrator.save_params(self.save_dir,
-                                                self.prefix)
+                    self.calibrator.save_data(self.output_dir,
+                                              self.file_prefix)
+                    self.calibrator.save_params(self.output_dir,
+                                                self.file_prefix)
         else:
             print("Failed to detect points")
 
@@ -146,16 +166,18 @@ class CalibrationWidget(QWidget):
     Widget to provide calibration in interactive mode.
     """
     def __init__(self,
-                 configuration=None,
-                 save_dir=None,
-                 prefix=None):
+                 configuration,
+                 source,
+                 output_dir=None,
+                 file_prefix=None):
         """
         Constructor creates the internal CalibrationDriver.
         """
         super().__init__()
         self.driver = CalibrationDriver(configuration,
-                                        save_dir,
-                                        prefix)
+                                        source,
+                                        output_dir,
+                                        file_prefix)
 
         self.layout = QHBoxLayout(self)
         self.layout.setContentsMargins(0, 0, 0, 0)
@@ -165,7 +187,7 @@ class CalibrationWidget(QWidget):
         self.layout.addWidget(self.vtk_overlay_window)
 
         self.keypress_delay_in_milliseconds \
-            = configuration.get("keypress delay", 1000)
+            = configuration.get("keypress delay in ms", 1000)
 
         self.vtk_overlay_window.AddObserver("KeyPressEvent",
                                             self.on_key_press_event)
@@ -265,20 +287,22 @@ class CalibrationWidget(QWidget):
 
 class CalibrationManager:
     """
-    For non-interactive mode. Just reads from video source
-    in a loop, and extracts points every few frames (see config file).
+    For non-interactive mode, reads from a video file, and
+    samples every few frames, as determined by "sample frequency" in config.
     """
     def __init__(self,
-                 configuration=None,
-                 save_dir=None,
-                 prefix=None
+                 configuration,
+                 source,
+                 output_dir=None,
+                 file_prefix=None
                  ):
         """
         Constructor creates the internal CalibrationDriver.
         """
         self.driver = CalibrationDriver(configuration,
-                                        save_dir,
-                                        prefix)
+                                        source,
+                                        output_dir,
+                                        file_prefix)
 
         self.sample_frequency = configuration.get("sample frequency", 1)
         self.frames_sampled = 0
@@ -305,36 +329,47 @@ class CalibrationManager:
                     print("Failed to detect points")
 
 
-def run_video_calibration(configuration=None,
-                          save_dir=None,
-                          prefix=None):
+def run_video_calibration(configuration,
+                          source,
+                          output_dir=None,
+                          file_prefix=None,
+                          noninteractive=None
+                          ):
     """
     Performs Video Calibration using OpenCV
     source and scikit-surgerycalibration.
-    Currently only chessboards are supported
+
+    It's a demo app, so currently, only chessboards are supported.
 
     :param configuration: dictionary of configuration data.
-    :param save_dir: optional directory name to dump calibrations to.
-    :param prefix: file name prefix when saving
-
-    :raises ValueError: if method is not supported
+    :param source: OpenCV video source, either webcam number or file name.
+    :param output_dir: optional directory name to dump calibrations to.
+    :param file_prefix: optional file name prefix when saving.
+    :param noninteractive: If True, we expect a file to process,
+    and run without GUI.
     """
-    interactive = configuration.get("interactive", True)
 
-    if interactive:
+    # These two are mandatory, and should be enforced by command line
+    # parser. But this method may be called from unit tests, or outside
+    # of the command line parser.
+    if noninteractive:
 
-        app = QtWidgets.QApplication([])
-
-        widget = CalibrationWidget(configuration,
-                                   save_dir,
-                                   prefix)
-        widget.show()
-        widget.start()
-        sys.exit(app.exec_())
+        manager = CalibrationManager(configuration=configuration,
+                                     source=source,
+                                     output_dir=output_dir,
+                                     file_prefix=file_prefix
+                                     )
+        manager.run()
 
     else:
 
-        manager = CalibrationManager(configuration,
-                                     save_dir,
-                                     prefix)
-        manager.run()
+        app = QtWidgets.QApplication([])
+
+        widget = CalibrationWidget(configuration=configuration,
+                                   source=source,
+                                   output_dir=output_dir,
+                                   file_prefix=file_prefix
+                                   )
+        widget.show()
+        widget.start()
+        sys.exit(app.exec_())

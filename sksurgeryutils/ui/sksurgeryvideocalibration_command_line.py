@@ -1,7 +1,6 @@
 # coding=utf-8
 
 """ CLI for sksurgeryvideocalibration app. """
-
 import argparse
 from sksurgerycore.configuration.configuration_manager import \
     ConfigurationManager
@@ -22,15 +21,26 @@ def main(args=None):
                              "(see config/video_chessboard_conf.json "
                              "for example).")
 
-    parser.add_argument("-s", "--save",
+    parser.add_argument("-s", "--source",
+                        required=True,
+                        type=str,
+                        default="0",
+                        help="OpenCV source. (USB camera number, or filename).")
+
+    parser.add_argument("-o", "--output",
                         required=False,
                         type=str,
-                        help="Directory to save to.")
+                        help="Optional directory to save to.")
 
     parser.add_argument("-p", "--prefix",
                         required=False,
                         type=str,
-                        help="Filename prefix to save to.")
+                        help="Optional filename prefix to save to.")
+
+    parser.add_argument("-ni", "--noninteractive",
+                        required=False,
+                        action='store_true',
+                        help="If specified, runs noninteractive mode.")
 
     version_string = __version__
     friendly_version_string = version_string if version_string else 'unknown'
@@ -44,4 +54,9 @@ def main(args=None):
     configurer = ConfigurationManager(args.config)
     configuration = configurer.get_copy()
 
-    run_video_calibration(configuration, args.save, args.prefix)
+    run_video_calibration(configuration,
+                          args.source,
+                          args.output,
+                          args.prefix,
+                          args.noninteractive
+                          )
