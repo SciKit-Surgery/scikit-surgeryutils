@@ -5,6 +5,7 @@ from sksurgeryvtk.widgets.vtk_reslice_widget import TrackedSliceViewer, \
 
 from sksurgeryarucotracker.arucotracker import ArUcoTracker
 
+
 def run_demo(tracked, dicom_dir):
 
     """ Demo """

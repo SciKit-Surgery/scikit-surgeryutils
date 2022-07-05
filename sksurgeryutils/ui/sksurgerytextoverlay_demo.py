@@ -12,7 +12,9 @@ from sksurgeryutils import common_overlay_apps
 
 logging.basicConfig(level=logging.INFO)
 LOGGER = logging.getLogger(__name__)
-#pylint:disable=line-too-long, invalid-name, unused-argument
+
+
+# pylint:disable=line-too-long, invalid-name, unused-argument
 class TextOverlayDemo(common_overlay_apps.OverlayOnVideoFeed):
     """ Demo app, to show text overlay"""
     def __init__(self, video_source):
@@ -49,6 +51,7 @@ class TextOverlayDemo(common_overlay_apps.OverlayOnVideoFeed):
         vtk_text = text_overlay.VTKText(text, x, y)
         vtk_text.set_parent_window(self.vtk_overlay_window)
         self.vtk_overlay_window.add_vtk_actor(vtk_text.text_actor, 2)
+
 
 def run_demo():
     """ Run demo """

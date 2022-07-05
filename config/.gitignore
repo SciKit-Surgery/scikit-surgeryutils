@@ -1,0 +1,17 @@
+# Pycharm
+/.idea
+
+# Generated files
+.tox
+.coverage
+*.pyc
+.pytest_cache/
+
+# PyInstaller
+build/
+dist/
+model2camera.spec
+
+# Mac Finder:
+.DS_Store
+

@@ -7,6 +7,7 @@ import mock
 import numpy as np
 import sksurgeryutils.common_overlay_apps as coa
 
+
 def test_OverlayOnVideoFeedCropRecord_from_file(setup_qt, tmpdir):
 
     in_github_ci = os.environ.get('CI')
@@ -25,11 +26,11 @@ def test_OverlayOnVideoFeedCropRecord_from_file(setup_qt, tmpdir):
     # the window is showing something, before we start
     # recording.
     overlay_app.start()
-    overlay_app.update()
+    overlay_app.update_view()
     overlay_app.on_record_start()
 
     for i in range(50):
-        overlay_app.update()
+        overlay_app.update_view()
 
     overlay_app.on_record_stop()
     overlay_app.stop()
@@ -46,6 +47,7 @@ def test_OverlayOnVideoFeedCropRecord_from_file(setup_qt, tmpdir):
     assert not ret
 
     output_video.release()
+
 
 def test_OverlayOnVideoFeedCropRecord_from_webcam(setup_qt):
     """
@@ -69,18 +71,19 @@ def test_OverlayOnVideoFeedCropRecord_from_webcam(setup_qt):
     # the window is showing something, before we start
     # recording.
     overlay_app.start()
-    overlay_app.update()
+    overlay_app.update_view()
     overlay_app.on_record_start()
 
     for i in range(50):
-        overlay_app.update()
+        overlay_app.update_view()
 
     overlay_app.on_record_stop()
     overlay_app.stop()
 
-def test_OverlayBaseAppRaisesNotImplementedError(setup_qt):
 
-    class ErrorApp(coa.OverlayBaseApp):
+def test_OverlayBaseWidgetRaisesNotImplementedError(setup_qt):
+
+    class ErrorApp(coa.OverlayBaseWidget):
 
         def something(self):
             pass
@@ -89,39 +92,12 @@ def test_OverlayBaseAppRaisesNotImplementedError(setup_qt):
         input_file = 'tests/data/100x50_100_frames.avi'
 
         overlay_app = ErrorApp(input_file)
-        overlay_app.update()
+        overlay_app.update_view()
 
 def test_OverlayOnVideoFeedCropRecord_set_roi(setup_qt):
         
         input_file = 'tests/data/100x50_100_frames.avi'
         overlay_app = coa.OverlayOnVideoFeedCropRecord(input_file)
-        overlay_app.update() # Get a frame so that we can crop it
+        overlay_app.update_view() # Get a frame so that we can crop it
         with pytest.raises(RuntimeError):
             overlay_app.set_roi()
-
-def test_DuplicateOverlayWindow(setup_qt):
-
-    input_file = 'tests/data/100x50_100_frames.avi'
-    overlay_app = coa.OverlayOnVideoFeed(input_file)
-
-    duplicate = coa.DuplicateOverlayWindow()
-    duplicate.set_source_window(overlay_app)
-    
-    overlay_app.update()
-    duplicate.update()
-
-    np.testing.assert_array_equal(overlay_app.img, duplicate.vtk_overlay_window.input)
-
-def test_DuplicateOverlayWindowWithCrop(setup_qt):
-    input_file = 'tests/data/100x50_100_frames.avi'
-    overlay_app = coa.OverlayOnVideoFeedCropRecord(input_file)
-
-    duplicate = coa.DuplicateOverlayWindow()
-    duplicate.set_source_window(overlay_app)
-    
-    overlay_app.update()
-    duplicate.update()
-
-    np.testing.assert_array_equal(overlay_app.img, duplicate.vtk_overlay_window.input)
-
-

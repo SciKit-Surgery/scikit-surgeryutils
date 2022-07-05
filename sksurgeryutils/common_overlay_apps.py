@@ -1,43 +1,69 @@
-"""Common use cases for vtk_overlay_window"""
+# coding=utf-8
+
+""" Common use cases for vtk_overlay_window """
 
 #pylint: disable=no-member, no-name-in-module, protected-access
-# coding=utf-8
+
 import datetime
 import logging
 import cv2
 
+from PySide2.QtWidgets import QWidget, QHBoxLayout
 from PySide2.QtCore import QTimer
 from sksurgeryimage.acquire.video_source import TimestampedVideoSource
 from sksurgeryimage.acquire.video_writer import TimestampedVideoWriter
-
 from sksurgeryvtk.widgets.vtk_overlay_window import VTKOverlayWindow
 from sksurgeryvtk.models.vtk_surface_model_directory_loader \
     import VTKSurfaceModelDirectoryLoader
 
-class OverlayBaseApp():
+
+class OverlayBaseWidget(QWidget):
     """
     Base class for applications that use vtk_overlay_window.
     The update() method should be implemented in the child
     class.
 
     :param video_source: OpenCV compatible video source (int or filename)
+    :param dims: size of video feed
     """
     def __init__(self, video_source, dims=None):
+        super().__init__()
+
+        self.layout = QHBoxLayout(self)
+        self.layout.setContentsMargins(0, 0, 0, 0)
+        self.layout.setSpacing(0)
+
         self.vtk_overlay_window = VTKOverlayWindow()
+        self.layout.addWidget(self.vtk_overlay_window)
+
         self.video_source = TimestampedVideoSource(video_source, dims)
+
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.update_view)
+
         self.update_rate = 30
         self.img = None
-        self.timer = None
         self.save_frame = None
 
     def start(self):
-        """Show the overlay widget and
-        set a timer running"""
-        self.vtk_overlay_window.show()
-
-        self.timer = QTimer()
-        self.timer.timeout.connect(self.update)
+        """
+        Starts the timer, which repeatedly triggers the update_view() method.
+        """
         self.timer.start(1000.0 / self.update_rate)
+
+    def stop(self):
+        """
+        Stops the timer.
+        """
+        self.timer.stop()
+
+    def terminate(self):
+        """
+        Make sure that the VTK Interactor terminates nicely, otherwise
+        it can throw some error messages, depending on the usage.
+        """
+        self.vtk_overlay_window._RenderWindow.Finalize()
+        self.vtk_overlay_window.TerminateApp()
 
     def add_vtk_models_from_dir(self, directory):
         """
@@ -47,34 +73,28 @@ class OverlayBaseApp():
         model_loader = VTKSurfaceModelDirectoryLoader(directory)
         self.vtk_overlay_window.add_vtk_models(model_loader.models)
 
-    def update(self):
+    def update_view(self):
         """ Update the scene background and/or foreground.
             Should be implemented by sub class """
 
         raise NotImplementedError('Should have implemented this method.')
 
-    def stop(self):
-        """
-        Make sure that the VTK Interactor terminates nicely, otherwise
-        it can throw some error messages, depending on the usage.
-        """
-        self.vtk_overlay_window._RenderWindow.Finalize()
-        self.vtk_overlay_window.TerminateApp()
 
-class OverlayOnVideoFeed(OverlayBaseApp):
+class OverlayOnVideoFeed(OverlayBaseWidget):
     """
     Uses the acquired video feed as the background image,
     with no additional processing.
     """
-
-    def update(self):
-        """ Get the next frame of input and display it. """
+    def update_view(self):
+        """
+        Get the next frame of input and display it.
+        """
         _, self.img = self.video_source.read()
         self.vtk_overlay_window.set_video_image(self.img)
-        self.vtk_overlay_window._RenderWindow.Render()
+        self.vtk_overlay_window.Render()
 
 
-class OverlayOnVideoFeedCropRecord(OverlayBaseApp):
+class OverlayOnVideoFeedCropRecord(OverlayBaseWidget):
     """ Add cropping of the incoming video feed, and the ability to
         record the vtk_overlay_window.
 
@@ -89,14 +109,15 @@ class OverlayOnVideoFeedCropRecord(OverlayBaseApp):
         self.output_filename = output_filename
         self.video_writer = None
 
-    def update(self):
-        """ Get the next frame of input, crop and/or
-            write to file (if either enabled). """
+    def update_view(self):
+        """
+        Get the next frame of input, crop and/or
+        write to file (if either enabled).
+        """
         _, self.img = self.video_source.read()
 
         self.vtk_overlay_window.set_video_image(self.img)
-
-        self.vtk_overlay_window._RenderWindow.Render()
+        self.vtk_overlay_window.Render()
 
         if self.save_frame:
             output_frame = self.get_output_frame()
@@ -144,46 +165,3 @@ class OverlayOnVideoFeedCropRecord(OverlayBaseApp):
         self.save_frame = False
         self.video_writer.close()
         logging.debug("Recording stopped.")
-
-
-class DuplicateOverlayWindow(OverlayOnVideoFeedCropRecord):
-    """
-    Set the background of vtk_overlay_window to duplicate
-    that of another vtk_overlay_window.
-
-    Example usage:
-    video_source = 0
-    source_window = OverlayOnVideoFeedCropRecord(video_source)
-
-    duplicate_window = DuplicateOverlayWindow()
-    duplicate_window.set_source_window(source_window)
-
-    """
-    def __init__(self):
-
-        #pylint: disable=super-init-not-called
-        self.vtk_overlay_window = VTKOverlayWindow()
-        self.update_rate = 30
-        self.img = None
-        self.timer = None
-        self.source_window = None
-
-    def set_source_window(self, source_window):
-        """ Set the source window.
-        :param source_window: The window that contains the image to copy. """
-        self.source_window = source_window
-
-    def update(self):
-        """ Update the frame with a new background image."""
-
-        self.img = self.source_window.vtk_overlay_window.input
-        self.vtk_overlay_window.set_video_image(self.img)
-
-        self.vtk_overlay_window._RenderWindow.Render()
-
-    def on_record_start(self):
-        """ Don't want to call the base class version, so override."""
-
-
-    def on_record_stop(self):
-        """ Don't want to call the base class version, so override."""

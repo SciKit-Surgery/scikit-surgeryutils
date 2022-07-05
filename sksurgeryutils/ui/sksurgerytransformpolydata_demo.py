@@ -9,7 +9,8 @@ import vtk
 import sksurgeryvtk.utils.matrix_utils as mu
 import sksurgeryvtk.models.vtk_surface_model as sm
 
-#pylint:disable=no-member
+# pylint:disable=no-member
+
 
 def run_demo(input_file,
              output_file,
