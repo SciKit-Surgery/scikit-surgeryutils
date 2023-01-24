@@ -26,14 +26,14 @@ class OverlayBaseWidget(QWidget):
     :param video_source: OpenCV compatible video source (int or filename)
     :param dims: size of video feed
     """
-    def __init__(self, video_source, dims=None):
+    def __init__(self, video_source, dims=None, init_vtk_widget=True):
         super().__init__()
 
         self.layout = QHBoxLayout(self)
         self.layout.setContentsMargins(0, 0, 0, 0)
         self.layout.setSpacing(0)
 
-        self.vtk_overlay_window = VTKOverlayWindow()
+        self.vtk_overlay_window = VTKOverlayWindow(init_widget=init_vtk_widget)
         self.layout.addWidget(self.vtk_overlay_window)
 
         self.video_source = TimestampedVideoSource(video_source, dims)
