@@ -30,16 +30,42 @@ jobs:
           - python-ver: 3.9
             os: macos-latest
             experimental: true
-
+          - python-ver: '3.10'
+            os: ubuntu-latest
+            experimental: true
+          - python-ver: '3.10'
+            os: macos-latest
+            experimental: true
+          - python-ver: '3.10'
+            os: windows-latest
+            experimental: true
+          - python-ver: 3.11
+            os: ubuntu-latest
+            experimental: true
+          - python-ver: 3.11
+            os: macos-latest
+            experimental: true
+          - python-ver: 3.11
+            os: windows-latest
+            experimental: true
+          - python-ver: 3.12-dev
+            os: ubuntu-latest
+            experimental: true
+          - python-ver: 3.12-dev
+            os: macos-latest
+            experimental: true
+          - python-ver: 3.12-dev
+            os: windows-latest
+            experimental: true
 
     runs-on: ${{ matrix.os }}
     continue-on-error: ${{ matrix.experimental }}
     timeout-minutes: 10
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Set up Python
-        uses: actions/setup-python@v1
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-ver }}
 
