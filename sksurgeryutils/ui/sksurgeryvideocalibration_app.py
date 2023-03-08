@@ -216,7 +216,8 @@ class BaseCalibrationWidget(QWidget):
                                             self.on_key_press_event)
 
         self.timer = QTimer()
-        self.timer.timeout.connect(self.update_view)
+        self.timer.timeout.connect(self.update_view) # pylint: disable=E1101
+        #E1101: Method 'timeout' has no 'connect' member (no-member)
 
         self.update_rate = 30
         self.annotation_time = None

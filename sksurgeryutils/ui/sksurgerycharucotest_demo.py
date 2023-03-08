@@ -6,7 +6,7 @@ import six
 import cv2
 from cv2 import aruco
 from PySide6 import QtCore, QtWidgets
-import PySide6.QtCore
+# import PySide6.QtCore
 import sksurgeryimage.calibration.charuco as ar
 import sksurgeryutils.utils.image_utils as iu
 
@@ -71,7 +71,7 @@ class CharucoDemoGui(QtWidgets.QWidget):
         self.grab.timeout.connect(self.update_image)
         self.grab.start()
 
-    @PySide6.QtCore.Slot()
+    @QtCore.Slot()
     def update_image(self):
 
         """ Updates the image. """

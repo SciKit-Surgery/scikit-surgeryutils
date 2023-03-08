@@ -3,8 +3,8 @@
 """ Small utilities to do with opening an OpenCV video camera. """
 
 import os
+# from cv2
 import cv2
-
 
 def validate_camera_source(source):
     """

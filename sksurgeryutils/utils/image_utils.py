@@ -29,7 +29,7 @@ def image_to_pixmap(rgb_image):
                            rgb_image.shape[1],
                            rgb_image.shape[0],
                            rgb_image.shape[1] * 3,
-                           QtGui.QImage.Format_RGB888)
+                           QtGui.QImage.Format.Format_RGB888)
 
     pix = QtGui.QPixmap(q_image)
     return pix
