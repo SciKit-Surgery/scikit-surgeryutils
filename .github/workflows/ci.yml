@@ -103,7 +103,7 @@ jobs:
           export QT_DEBUG_PLUGINS=0
           export LD_LIBRARY_PATH=$pythonLocation"/lib/python${{ matrix.python-version }}/site-packages/PySide6/Qt/plugins/platforms"
           coverage erase
-          coverage run -a --source ./sksurgeryvtk -m pytest -v -s
+          coverage run -a --source ./sksurgeryutils -m pytest -v -s
           coverage report -m
 
       - name: Run tests Windows/Mac
