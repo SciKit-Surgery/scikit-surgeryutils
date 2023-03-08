@@ -6,10 +6,11 @@ import os
 import sys
 import numpy as np
 import cv2
-from PySide2 import QtWidgets
+from PySide6 import QtWidgets
 from sksurgerycalibration.video.video_calibration_params import \
-                MonoCalibrationParams
+    MonoCalibrationParams
 import sksurgeryutils.ui.sksurgeryvideocalibration_app as vca
+
 
 # pylint: disable=unused-argument
 
@@ -18,6 +19,7 @@ class CalibrationCheckerDriver(vca.BaseDriver):
     """
     Main app logic to check the accuracy of a calibration.
     """
+
     def __init__(self,
                  configuration,
                  source,
@@ -93,11 +95,11 @@ class CalibrationCheckerDriver(vca.BaseDriver):
                     if self.key_pressed == 't':
                         print("Translation: "
                               + str(self.captured_positions[-1][0]
-                                  - self.captured_positions[-2][0]) + " "
+                                    - self.captured_positions[-2][0]) + " "
                               + str(self.captured_positions[-1][1]
-                                  - self.captured_positions[-2][1]) + " "
+                                    - self.captured_positions[-2][1]) + " "
                               + str(self.captured_positions[-1][2]
-                                  - self.captured_positions[-2][2]) + " ")
+                                    - self.captured_positions[-2][2]) + " ")
 
                     if self.key_pressed == 'm':
                         print("Mean:"
@@ -121,6 +123,7 @@ class CalibrationCheckerWidget(vca.BaseCalibrationWidget):
     """
     Widget to provide calibration checking logic in interactive mode.
     """
+
     def __init__(self,
                  configuration,
                  driver):

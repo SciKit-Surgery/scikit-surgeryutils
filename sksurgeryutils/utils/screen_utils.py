@@ -2,7 +2,7 @@
 """ Any useful utilities relating to displays/screens. """
 #pylint:disable=no-name-in-module
 
-from PySide2.QtGui import QGuiApplication
+from PySide6.QtGui import QGuiApplication
 
 #pylint: disable=useless-object-inheritance
 

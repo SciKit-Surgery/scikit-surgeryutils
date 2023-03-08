@@ -1,12 +1,12 @@
 # coding=utf-8
 
-""" Demo app, to show OpenCV video and PySide2 widgets together."""
+""" Demo app, to show OpenCV video and PySide6 widgets together."""
 import sys
 import time
 import six
 import cv2
-from PySide2 import QtCore, QtWidgets, QtGui
-from PySide2.QtCore import Slot
+from PySide6 import QtCore, QtWidgets, QtGui
+from PySide6.QtCore import Slot
 import sksurgeryutils.utils.image_utils as iu
 
 # pylint: disable=too-many-instance-attributes

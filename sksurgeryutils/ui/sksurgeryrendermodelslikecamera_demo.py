@@ -6,7 +6,7 @@ App to render a set of models using a calibrated camera.
 
 import sys
 import cv2
-from PySide2 import QtWidgets
+from PySide6 import QtWidgets
 import sksurgeryvtk.widgets.vtk_rendering_generator as rg
 
 
@@ -35,7 +35,6 @@ def run_demo(models_file,
              sigma,
              clippingrange,
              output_file):
-
     """ Demo app, to render a set of models using a calibrated camera. """
     app = QtWidgets.QApplication([])
 

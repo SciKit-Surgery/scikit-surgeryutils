@@ -8,8 +8,8 @@ import datetime
 import logging
 import cv2
 
-from PySide2.QtWidgets import QWidget, QHBoxLayout
-from PySide2.QtCore import QTimer
+from PySide6.QtWidgets import QWidget, QHBoxLayout
+from PySide6.QtCore import QTimer
 from sksurgeryimage.acquire.video_source import TimestampedVideoSource
 from sksurgeryimage.acquire.video_writer import TimestampedVideoWriter
 from sksurgeryvtk.widgets.vtk_overlay_window import VTKOverlayWindow

@@ -5,7 +5,7 @@ Various image utilities that might be useful in this package.
 """
 
 import numpy as np
-from PySide2 import QtGui
+from PySide6 import QtGui
 
 
 def image_to_pixmap(rgb_image):

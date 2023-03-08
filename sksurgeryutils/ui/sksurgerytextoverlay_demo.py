@@ -5,7 +5,7 @@
 import logging
 import sys
 
-from PySide2.QtWidgets import QApplication, QInputDialog
+from PySide6.QtWidgets import QApplication, QInputDialog
 
 from sksurgeryvtk.text import text_overlay
 from sksurgeryutils import common_overlay_apps
@@ -17,8 +17,8 @@ LOGGER = logging.getLogger(__name__)
 # pylint:disable=line-too-long, invalid-name, unused-argument
 class TextOverlayDemo(common_overlay_apps.OverlayOnVideoFeed):
     """ Demo app, to show text overlay"""
-    def __init__(self, video_source):
 
+    def __init__(self, video_source):
         super().__init__(video_source)
 
         self.vtk_overlay_window.GetRenderWindow().SetWindowName("Click on image to add text")

@@ -6,9 +6,9 @@ import os
 import sys
 from datetime import datetime
 import cv2
-from PySide2 import QtWidgets
-from PySide2.QtWidgets import QWidget, QHBoxLayout, QApplication
-from PySide2.QtCore import QTimer
+from PySide6 import QtWidgets
+from PySide6.QtWidgets import QWidget, QHBoxLayout, QApplication
+from PySide6.QtCore import QTimer
 from sksurgeryvtk.widgets.vtk_overlay_window import VTKOverlayWindow
 import sksurgeryimage.calibration.chessboard_point_detector as cpd
 import sksurgerycalibration.video.video_calibration_driver_mono as mc

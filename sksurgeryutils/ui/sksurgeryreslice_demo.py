@@ -1,5 +1,5 @@
 """ VTK Reslice widget demo. """
-from PySide2 import QtWidgets
+from PySide6 import QtWidgets
 from sksurgeryvtk.widgets.vtk_reslice_widget import TrackedSliceViewer, \
      MouseWheelSliceViewer
 
