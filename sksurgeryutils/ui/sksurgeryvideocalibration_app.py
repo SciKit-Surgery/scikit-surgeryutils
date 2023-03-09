@@ -126,7 +126,7 @@ class CalibrationDriver(BaseDriver):
         self.file_prefix = file_prefix
 
         if self.file_prefix is not None and self.output_dir is None:
-            self.output_dir = os.getcwd()
+            self.output_dir = os.getcwd() # pylint: disable=no-member
 
         # Parameters specific to calibration.
         self.calibrator = mc.MonoVideoCalibrationDriver(self.detector,
@@ -168,8 +168,8 @@ class CalibrationDriver(BaseDriver):
 
                 if self.output_dir is not None:
 
-                    if not os.path.isdir(self.output_dir):
-                        os.makedirs(self.output_dir)
+                    if not os.path.isdir(self.output_dir): # pylint: disable=no-member
+                        os.makedirs(self.output_dir) # pylint: disable=no-member
 
                     self.calibrator.save_data(self.output_dir,
                                               self.file_prefix)

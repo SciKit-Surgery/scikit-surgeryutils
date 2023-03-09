@@ -6,7 +6,6 @@ import six
 import cv2
 from cv2 import aruco
 from PySide6 import QtCore, QtWidgets
-# import PySide6.QtCore
 import sksurgeryimage.calibration.charuco as ar
 import sksurgeryutils.utils.image_utils as iu
 

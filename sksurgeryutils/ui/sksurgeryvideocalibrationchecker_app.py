@@ -38,7 +38,7 @@ class CalibrationCheckerDriver(vca.BaseDriver):
             raise ValueError("Calibration dir should be a string")
         if len(calibration_dir) == 0:
             raise ValueError("Calibration dir is an empty string")
-        if not os.path.isdir(calibration_dir):
+        if not os.path.isdir(calibration_dir): # pylint: disable=no-member
             raise ValueError("Calibration dir is not a dir")
 
         # Parameters specific to calibration checking, as base class
