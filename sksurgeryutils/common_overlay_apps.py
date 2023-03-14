@@ -124,7 +124,7 @@ class OverlayOnVideoFeedCropRecord(OverlayBaseWidget):
             self.video_writer.write_frame(output_frame,
                                           self.video_source.timestamp)
 
-    def set_roi(self): #pylint: disable=no-self-use
+    def set_roi(self):
         """
            Crop the incoming video stream using ImageCropper.
            Function is depreciated due to moving to opencv-headless
