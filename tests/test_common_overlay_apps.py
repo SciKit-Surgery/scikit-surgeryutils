@@ -20,11 +20,6 @@ skip_pytest_in_linux_and_none_ci = pytest.mark.skipif(
 
 @skip_pytest_in_linux_and_none_ci
 def test_OverlayOnVideoFeedCropRecord_from_file(setup_qt, tmpdir):
-    in_github_ci = os.environ.get('CI')
-
-    if in_github_ci and sys.platform.startswith("linux"):
-        pytest.skip("Test not working on Linux runner \
-                    because of unknown issue.")
 
     input_file = 'tests/data/100x50_100_frames.avi'
 
