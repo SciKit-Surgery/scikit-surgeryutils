@@ -20,7 +20,7 @@ skip_pytest_in_linux_and_none_ci = pytest.mark.skipif(
 )
 
 
-@skip_pytest_in_linux_and_none_ci
+# @skip_pytest_in_linux_and_none_ci
 def test_sksurgerytextoverlay():
     """
     Basic test to run the widget and make sure everything loads OK.
@@ -50,4 +50,5 @@ def test_sksurgerytextoverlay():
     # You don't really want this in a unit test, otherwise you can't exit.
     # If you want to do interactive testing, please uncomment the following line
     # _pyside_qt_app.exec()
-    gui_widget.close()
+    gui_widget.stop()
+    gui_widget.terminate()
