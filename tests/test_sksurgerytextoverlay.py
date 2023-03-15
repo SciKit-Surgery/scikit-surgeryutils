@@ -21,7 +21,7 @@ skip_pytest_in_linux_and_none_ci = pytest.mark.skipif(
 
 
 @skip_pytest_in_linux_and_none_ci
-def test_sksurgerytextoverlay(setup_pyside_qt_app):
+def test_sksurgerytextoverlay():
     """
     Basic test to run the widget and make sure everything loads OK.
 
@@ -38,7 +38,7 @@ def test_sksurgerytextoverlay(setup_pyside_qt_app):
     else:
         _pyside_qt_app = QApplication.instance()
 
-    _pyside_qt_app = setup_pyside_qt_app
+    # _pyside_qt_app = setup_pyside_qt_app
 
     # Use input video rather than camera to test
     input_file = 'tests/data/test_video.avi'
