@@ -19,12 +19,28 @@ skip_pytest_in_linux_and_none_ci = pytest.mark.skipif(
 )
 
 
-@skip_pytest_in_linux_and_none_ci
-def test_sksurgerytextoverlay():
-    """ Basic test to run the widget and make sure everything loads OK."""
+# @skip_pytest_in_linux_and_none_ci
+def test_sksurgerytextoverlay(setup_pyside_qt_app):
+    """
+    Basic test to run the widget and make sure everything loads OK.
+
+    NOTES:
+        * Not really a unit test as it does not assert anything.
+        But at least it might throw an error if something else changes.
+
+        * For local test, remember to uncomment `_pyside_qt_app.exec()` at the end of this module
+    """
+
+    _pyside_qt_app = setup_pyside_qt_app
 
     # Use input video rather than camera to test
     input_file = 'tests/data/test_video.avi'
 
-    gui = TextOverlayDemo(input_file)
-    gui.start()
+    gui_widget = TextOverlayDemo(input_file)
+    gui_widget.start()
+    gui_widget.show()
+
+    # You don't really want this in a unit test, otherwise you can't exit.
+    # If you want to do interactive testing, please uncomment the following line
+    # _pyside_qt_app.exec()
+    gui_widget.close()
