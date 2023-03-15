@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
 import platform
-import sys
 
 import cv2
 import pytest
@@ -20,7 +19,6 @@ skip_pytest_in_linux_and_none_ci = pytest.mark.skipif(
 
 @skip_pytest_in_linux_and_none_ci
 def test_OverlayOnVideoFeedCropRecord_from_file(setup_qt, tmpdir):
-
     input_file = 'tests/data/100x50_100_frames.avi'
 
     out_file = os.path.join(tmpdir, 'overlay_test.avi')
