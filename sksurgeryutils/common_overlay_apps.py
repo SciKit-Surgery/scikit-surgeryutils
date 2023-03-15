@@ -2,8 +2,6 @@
 
 """ Common use cases for vtk_overlay_window """
 
-# pylint: disable=no-member, no-name-in-module, protected-access
-
 import datetime
 import logging
 import platform
@@ -69,7 +67,7 @@ class OverlayBaseWidget(QWidget):
         Make sure that the VTK Interactor terminates nicely, otherwise
         it can throw some error messages, depending on the usage.
         """
-        self.vtk_overlay_window._RenderWindow.Finalize()
+        self.vtk_overlay_window._RenderWindow.Finalize()  # pylint: disable=protected-access
         self.vtk_overlay_window.TerminateApp()
 
     def add_vtk_models_from_dir(self, directory):
