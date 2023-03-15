@@ -6,6 +6,7 @@ import os
 import platform
 
 import pytest
+from PySide6.QtWidgets import QApplication
 
 from sksurgeryutils.ui.sksurgerytextoverlay_demo import TextOverlayDemo
 
@@ -19,7 +20,7 @@ skip_pytest_in_linux_and_none_ci = pytest.mark.skipif(
 )
 
 
-# @skip_pytest_in_linux_and_none_ci
+@skip_pytest_in_linux_and_none_ci
 def test_sksurgerytextoverlay(setup_pyside_qt_app):
     """
     Basic test to run the widget and make sure everything loads OK.
@@ -30,6 +31,12 @@ def test_sksurgerytextoverlay(setup_pyside_qt_app):
 
         * For local test, remember to uncomment `_pyside_qt_app.exec()` at the end of this module
     """
+
+    # Check if already an instance of QApplication is present or not
+    if not QApplication.instance():
+        _pyside_qt_app = QApplication([])
+    else:
+        _pyside_qt_app = QApplication.instance()
 
     _pyside_qt_app = setup_pyside_qt_app
 
