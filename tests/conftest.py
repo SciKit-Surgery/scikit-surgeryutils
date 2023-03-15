@@ -3,7 +3,7 @@ import pytest
 from PySide6.QtWidgets import QApplication
 
 @pytest.fixture(scope="session")
-def setup_pyside_qt_app():
+def setup_qt():
     """
     Create the QT application.
     """
