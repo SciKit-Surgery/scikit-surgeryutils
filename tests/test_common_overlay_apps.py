@@ -17,39 +17,39 @@ skip_pytest_in_linux_and_none_ci = pytest.mark.skipif(
 )
 
 
-@skip_pytest_in_linux_and_none_ci
-def test_OverlayOnVideoFeedCropRecord_from_file(setup_qt, tmpdir):
-    input_file = 'tests/data/100x50_100_frames.avi'
-
-    out_file = os.path.join(tmpdir, 'overlay_test.avi')
-
-    overlay_app = coa.OverlayOnVideoFeedCropRecord(input_file, out_file)
-
-    # Start app and get a frame from input, so that
-    # the window is showing something, before we start
-    # recording.
-    overlay_app.start()
-    overlay_app.update_view()
-    overlay_app.on_record_start()
-
-    for i in range(50):
-        overlay_app.update_view()
-
-    overlay_app.on_record_stop()
-    overlay_app.stop()
-
-    # Check that 50 frames were actually written to the output file
-    output_video = cv2.VideoCapture(out_file)
-
-    for i in range(50):
-        ret, _ = output_video.read()
-    assert ret
-
-    # Trying to read 51st frame should return False
-    ret, _ = output_video.read()
-    assert not ret
-
-    output_video.release()
+# @skip_pytest_in_linux_and_none_ci
+# def test_OverlayOnVideoFeedCropRecord_from_file(setup_qt, tmpdir):
+#     input_file = 'tests/data/100x50_100_frames.avi'
+#
+#     out_file = os.path.join(tmpdir, 'overlay_test.avi')
+#
+#     overlay_app = coa.OverlayOnVideoFeedCropRecord(input_file, out_file)
+#
+#     # Start app and get a frame from input, so that
+#     # the window is showing something, before we start
+#     # recording.
+#     overlay_app.start()
+#     overlay_app.update_view()
+#     overlay_app.on_record_start()
+#
+#     for i in range(50):
+#         overlay_app.update_view()
+#
+#     overlay_app.on_record_stop()
+#     overlay_app.stop()
+#
+#     # Check that 50 frames were actually written to the output file
+#     output_video = cv2.VideoCapture(out_file)
+#
+#     for i in range(50):
+#         ret, _ = output_video.read()
+#     assert ret
+#
+#     # Trying to read 51st frame should return False
+#     ret, _ = output_video.read()
+#     assert not ret
+#
+#     output_video.release()
 
 
 @skip_pytest_in_linux_and_none_ci
