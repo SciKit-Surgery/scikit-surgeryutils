@@ -20,7 +20,7 @@ skip_pytest_in_linux_and_none_ci = pytest.mark.skipif(
 )
 
 
-# @skip_pytest_in_linux_and_none_ci
+@skip_pytest_in_linux_and_none_ci
 def test_sksurgerytextoverlay():
     """
     Basic test to run the widget and make sure everything loads OK.
