@@ -62,5 +62,6 @@ def run_demo():
     video_source = 0
     demo = TextOverlayDemo(video_source)
     demo.start()
+    demo.show()
 
-    return sys.exit(app.exec_())
+    return sys.exit(app.exec())

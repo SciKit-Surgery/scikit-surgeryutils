@@ -1,6 +1,6 @@
 # coding=utf-8
 
-""" Command line processing for charucotest app. """
+""" Command line processing for sksurgerytextoverlay app. """
 
 import argparse
 from sksurgeryutils import __version__
