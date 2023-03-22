@@ -83,10 +83,22 @@ def test_OverlayOnVideoFeedCropRecord_from_file(tmpdir):
 
 
 @skip_pytest_in_linux_and_none_ci
-def test_OverlayOnVideoFeedCropRecord_from_webcam(setup_qt):
+def test_OverlayOnVideoFeedCropRecord_from_webcam():
     """
-    Test will only run if there is a camera avilable.
+    Test will only run if there is a camera available.
+
+    NOTES:
+        * Not really a unit test as it does not assert anything.
+        But at least it might throw an error if something else changes.
+
+        * For local test, remember to uncomment `_pyside_qt_app.exec()` at the end of this module
     """
+
+    # Check if already an instance of QApplication is present or not
+    if not QApplication.instance():
+        _pyside_qt_app = QApplication([])
+    else:
+        _pyside_qt_app = QApplication.instance()
 
     # Try to open a camera. If one isn't available, the rest of test
     # will be skipped.
@@ -96,6 +108,10 @@ def test_OverlayOnVideoFeedCropRecord_from_webcam(setup_qt):
         pytest.skip("No camera available")
 
     cam.release()
+
+    # You don't really want this in a unit test, otherwise you can't exit.
+    # If you want to do interactive testing, please uncomment the following line
+    # _pyside_qt_app.exec()
 
     # Don't pass an output filename as a parameter, so that
     # the code to generate a filename from current date/time is executed.
@@ -114,9 +130,27 @@ def test_OverlayOnVideoFeedCropRecord_from_webcam(setup_qt):
     overlay_app.on_record_stop()
     overlay_app.stop()
 
+    # You don't really want this in a unit test, otherwise you can't exit.
+    # If you want to do interactive testing, please uncomment the following line
+    # _pyside_qt_app.exec()
+
 
 @skip_pytest_in_linux_and_none_ci
-def test_OverlayBaseWidgetRaisesNotImplementedError(setup_qt):
+def test_OverlayBaseWidgetRaisesNotImplementedError():
+    """
+
+    NOTES:
+        * Not really a unit test as it does not assert anything.
+        But at least it might throw an error if something else changes.
+
+        * For local test, remember to uncomment `_pyside_qt_app.exec()` at the end of this module
+    """
+    # Check if already an instance of QApplication is present or not
+    if not QApplication.instance():
+        _pyside_qt_app = QApplication([])
+    else:
+        _pyside_qt_app = QApplication.instance()
+
     class ErrorApp(coa.OverlayBaseWidget):
 
         def something(self):
@@ -128,11 +162,34 @@ def test_OverlayBaseWidgetRaisesNotImplementedError(setup_qt):
         overlay_app = ErrorApp(input_file)
         overlay_app.update_view()
 
+    # You don't really want this in a unit test, otherwise you can't exit.
+    # If you want to do interactive testing, please uncomment the following line
+    # _pyside_qt_app.exec()
+
 
 @skip_pytest_in_linux_and_none_ci
-def test_OverlayOnVideoFeedCropRecord_set_roi(setup_qt):
+def test_OverlayOnVideoFeedCropRecord_set_roi():
+    """
+
+    NOTES:
+        * Not really a unit test as it does not assert anything.
+        But at least it might throw an error if something else changes.
+
+        * For local test, remember to uncomment `_pyside_qt_app.exec()` at the end of this module
+    """
+
+    # Check if already an instance of QApplication is present or not
+    if not QApplication.instance():
+        _pyside_qt_app = QApplication([])
+    else:
+        _pyside_qt_app = QApplication.instance()
+
     input_file = 'tests/data/100x50_100_frames.avi'
     overlay_app = coa.OverlayOnVideoFeedCropRecord(input_file)
     overlay_app.update_view()  # Get a frame so that we can crop it
     with pytest.raises(RuntimeError):
         overlay_app.set_roi()
+
+    # You don't really want this in a unit test, otherwise you can't exit.
+    # If you want to do interactive testing, please uncomment the following line
+    # _pyside_qt_app.exec()
