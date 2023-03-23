@@ -46,6 +46,7 @@ Features
 Command line applications
 -----------------
 Open a terminal, load your virtual environment and run the application as `python sk*.py`.
+
 * sksurgeryvideolag.py - shows a millisecond timer and video image to crudely measure measure lag.
 * sksurgerycharucotest.py - extracts charuco points and annotates video image with each id detected.
 * sksurgeryrendermodelslikecamera.py - renders a VTK model, over background image, using OpenCV camera intrinsics.
