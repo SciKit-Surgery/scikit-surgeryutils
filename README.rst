@@ -44,7 +44,7 @@ Features
 * `Common overlay apps <https://scikit-surgeryutils.readthedocs.io/en/latest/module_ref.html#module-sksurgeryutils.common_overlay_apps>`_ - Examples of common uses of scikit-surgeryvtk's VTKOverlayWindow. Includes overlaying on a video feed, duplicating a feed.
 
 Command line applications
------------------
+-------------------------
 Open a terminal, load your virtual environment and run the application as `python sk*.py`.
 
 * sksurgeryvideolag.py - shows a millisecond timer and video image to crudely measure measure lag.

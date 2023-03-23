@@ -14,7 +14,7 @@ setup(
     name='scikit-surgeryutils',
     version=versioneer.get_version(),
     cmdclass=versioneer.get_cmdclass(),
-    description='scikit-surgeryutils - Tests/demos utilities, based around opencv-contrib-python-headless and PySide2',
+    description='scikit-surgeryutils - Tests/demos utilities, based around opencv-contrib-python-headless and PySide6',
     long_description=long_description,
     long_description_content_type='text/x-rst',
     url='https://github.com/SciKit-Surgery/scikit-surgeryutils',
@@ -22,7 +22,7 @@ setup(
     author_email='m.clarkson@ucl.ac.uk',
     license='BSD-3 license',
     classifiers=[
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
 
         'Intended Audience :: Developers',
         'Intended Audience :: Healthcare Industry',
@@ -34,7 +34,6 @@ setup(
 
 
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 3',
 
         'Topic :: Scientific/Engineering :: Information Analysis',
@@ -53,11 +52,11 @@ setup(
     install_requires=[
         'six>=1.10',
         'numpy>=1.11',
-        'opencv-contrib-python-headless>=4.1.1.26',
-        'PySide2<5.15.0',
+        'opencv-contrib-python-headless>=4.2.0.32',
+        'pyside6>=6.4.2',
         'scikit-surgerycore>=0.1.7',
         'scikit-surgeryimage>=0.10.1',
-        'scikit-surgeryvtk>=1.0.6',
+        'scikit-surgeryvtk==2.0rc0',
         'scikit-surgeryarucotracker>=0.2.7',
         'scikit-surgerycalibration>=0.2.1'
     ],
