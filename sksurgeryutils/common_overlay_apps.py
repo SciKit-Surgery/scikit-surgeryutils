@@ -95,7 +95,7 @@ class OverlayOnVideoFeed(OverlayBaseWidget):
         """
         Get the next frame of input and display it.
         """
-        _, self.img = self.video_source.read()
+        _bool_retrieve, self.img = self.video_source.read()
         self.vtk_overlay_window.set_video_image(self.img)
         self.vtk_overlay_window.Render()
 
