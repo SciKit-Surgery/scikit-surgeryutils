@@ -1,7 +1,7 @@
 scikit-surgeryutils 
 ===============================
 
-.. image:: sksutils_logo.png
+.. image:: https://github.com/SciKit-Surgery/scikit-surgeryutils/raw/master/sksutils_logo.png
    :height: 128px
    :width: 128px
    :target: https://github.com/SciKit-Surgery/scikit-surgeryutils 
