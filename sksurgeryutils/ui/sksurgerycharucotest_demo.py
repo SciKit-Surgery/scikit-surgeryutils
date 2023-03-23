@@ -5,16 +5,17 @@ import sys
 import six
 import cv2
 from cv2 import aruco
-from PySide2 import QtCore, QtWidgets
-from PySide2.QtCore import Slot
+from PySide6 import QtCore, QtWidgets
 import sksurgeryimage.calibration.charuco as ar
 import sksurgeryutils.utils.image_utils as iu
+
 
 # pylint: disable=too-many-instance-attributes
 
 
 class CharucoDemoGui(QtWidgets.QWidget):
     """ Demo GUI, with 2 QLabel side by side."""
+
     def __init__(self, camera, width, height, rows, columns, dictionary):
         super().__init__()
 
@@ -69,7 +70,7 @@ class CharucoDemoGui(QtWidgets.QWidget):
         self.grab.timeout.connect(self.update_image)
         self.grab.start()
 
-    @Slot()
+    @QtCore.Slot()
     def update_image(self):
 
         """ Updates the image. """
@@ -98,7 +99,7 @@ class CharucoDemoGui(QtWidgets.QWidget):
 
         # Draw detected corners back on RGB image.
         if chessboard_corners is not None \
-            and chessboard_ids is not None \
+                and chessboard_ids is not None \
                 and chessboard_corners.shape[0] \
                 and chessboard_ids.shape[0]:
             annotated_frame = ar.draw_charuco_corners(rgb_frame,
@@ -114,7 +115,6 @@ class CharucoDemoGui(QtWidgets.QWidget):
 
 
 def run_demo(camera, width, height, rows, columns, dictionary):
-
     """ Prints command line args, and launches main screen."""
     six.print_("Camera:" + str(camera))
     six.print_("  Width:" + str(width))

@@ -1,10 +1,12 @@
 # coding=utf-8
 """ Any useful utilities relating to displays/screens. """
-#pylint:disable=no-name-in-module
+# pylint:disable=no-name-in-module
 
-from PySide2.QtGui import QGuiApplication
+from PySide6.QtGui import QGuiApplication
 
-#pylint: disable=useless-object-inheritance
+
+# pylint: disable=useless-object-inheritance
+# pylint: disable=too-few-public-methods
 
 
 class ScreenController(object):
@@ -19,7 +21,7 @@ class ScreenController(object):
         if self.primary in self.screens:
             self.screens.remove(self.primary)
 
-    def list_of_screens(self):  # pylint: disable=no-self-use
+    def list_of_screens(self):
         """Return the primary screen and list of other available screens"""
 
         return self.primary, self.screens

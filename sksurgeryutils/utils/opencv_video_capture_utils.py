@@ -5,7 +5,6 @@
 import os
 import cv2
 
-
 def validate_camera_source(source):
     """
     Checks the source parameters is not None, is either
@@ -32,7 +31,7 @@ def validate_camera_source(source):
 
             result = source_as_int
         else:
-            if not os.path.isfile(source):
+            if not os.path.isfile(source): # pylint: disable=no-member
                 raise RuntimeError("OpenCV source is a string, but not a file.")
 
     return result

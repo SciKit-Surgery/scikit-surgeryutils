@@ -1,7 +1,7 @@
 scikit-surgeryutils 
 ===============================
 
-.. image:: https://github.com/SciKit-Surgery/scikit-surgeryutils/raw/master/weiss_logo.png
+.. image:: https://github.com/SciKit-Surgery/scikit-surgeryutils/raw/master/sksutils_logo.png
    :height: 128px
    :width: 128px
    :target: https://github.com/SciKit-Surgery/scikit-surgeryutils 
@@ -28,10 +28,14 @@ scikit-surgeryutils
    :target: https://twitter.com/scikit_surgery?ref_src=twsrc%5Etfw
    :alt: Follow scikit_surgery on twitter
 
+Author(s): Stephen Thompson and Matt Clarkson;
+Contributor(s): Miguel Xochicale, Thomas Dowrick, and Mian Ahmad.
+
+scikit-surgeryutils containing small demo apps and utilities.
 
 scikit-surgeryutils is part of the `SciKit-Surgery`_ software project, developed at the `Wellcome EPSRC Centre for Interventional and Surgical Sciences`_, part of `University College London (UCL)`_.
 
-scikit-surgeryutils containing small demo apps and utilities.
+scikit-surgeryvtk is tested on Python 3.8. and may support other Python versions.
 
 .. features-start
 
@@ -39,8 +43,10 @@ Features
 --------
 * `Common overlay apps <https://scikit-surgeryutils.readthedocs.io/en/latest/module_ref.html#module-sksurgeryutils.common_overlay_apps>`_ - Examples of common uses of scikit-surgeryvtk's VTKOverlayWindow. Includes overlaying on a video feed, duplicating a feed.
 
-Command Line Apps
+Command line applications
 -----------------
+Open a terminal, load your virtual environment and run the application as `python sk*.py`.
+
 * sksurgeryvideolag.py - shows a millisecond timer and video image to crudely measure measure lag.
 * sksurgerycharucotest.py - extracts charuco points and annotates video image with each id detected.
 * sksurgeryrendermodelslikecamera.py - renders a VTK model, over background image, using OpenCV camera intrinsics.
@@ -85,6 +91,10 @@ You can run the unit tests by installing and running tox:
     tox
 
 
+Encountering Problems?
+^^^^^^^^^^^^^^^^^^^^^^
+Please get in touch or raise an `issue`_.
+
 Contributing
 ^^^^^^^^^^^^
 
@@ -120,3 +130,4 @@ Supported by `Wellcome`_ and `EPSRC`_.
 .. _`EPSRC`: https://www.epsrc.ac.uk/
 .. _`contributing guidelines`: https://github.com/SciKit-Surgery/scikit-surgeryutils/blob/master/CONTRIBUTING.rst
 .. _`license file`: https://github.com/SciKit-Surgery/scikit-surgeryutils/blob/master/LICENSE
+.. _`issue`: https://github.com/SciKit-Surgery/scikit-surgeryutils/issues/new
