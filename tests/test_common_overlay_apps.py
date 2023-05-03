@@ -27,7 +27,6 @@ skip_pytest_in_linux = pytest.mark.skipif(
 )
 
 
-@skip_pytest_in_linux
 def test_OverlayOnVideoFeedCropRecord_from_file(tmpdir):
     """
 
