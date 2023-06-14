@@ -52,12 +52,12 @@ setup(
     install_requires=[
         'six>=1.10',
         'numpy>=1.11',
-        'opencv-contrib-python-headless',
+        'opencv-contrib-python-headless,
         'pyside6>=6.4.2',
         'scikit-surgerycore>=0.1.7',
         'scikit-surgeryimage>=0.10.1',
         'scikit-surgeryvtk==2.0rc0',
-        'scikit-surgeryarucotracker>=0.2.7',
+        'scikit-surgeryarucotracker',
         'scikit-surgerycalibration>=0.2.1'
     ],
 
