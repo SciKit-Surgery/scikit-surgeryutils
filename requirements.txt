@@ -4,10 +4,10 @@
 # doc/requirements.rst
 six>=1.10
 numpy>=1.11
-opencv-contrib-python-headless
+opencv-contrib-python-headless>=4.7.0.72
 scikit-surgerycore>=0.1.7
 scikit-surgeryimage>=0.10.1
 scikit-surgeryvtk==2.0rc0
-scikit-surgeryarucotracker>=4.7.0.72
+scikit-surgeryarucotracker
 scikit-surgerycalibration>=0.2.1
 pyside6>=6.4.2
