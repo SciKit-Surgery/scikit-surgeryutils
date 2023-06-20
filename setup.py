@@ -56,7 +56,7 @@ setup(
         'pyside6>=6.4.2',
         'scikit-surgerycore>=0.1.7',
         'scikit-surgeryimage>=0.10.1',
-        'scikit-surgeryvtk==2.0.1',
+        'scikit-surgeryvtk>=2.0.1',
         'scikit-surgeryarucotracker',
         'scikit-surgerycalibration>=0.2.1'
     ],
