@@ -9,8 +9,6 @@ mock
 pyfakefs
 parameterized
 pylint
-sphinx
-sphinx_rtd_theme
 pyinstaller
 pytest
 pytest-qt
