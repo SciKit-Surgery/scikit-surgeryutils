@@ -1,6 +1,6 @@
 
 scikit-surgeryutils documentation
-================================
+=================================
 
 .. include:: ../README.rst
    :start-after: .. features-start
