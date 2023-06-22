@@ -28,8 +28,8 @@ scikit-surgeryutils
    :target: https://twitter.com/scikit_surgery?ref_src=twsrc%5Etfw
    :alt: Follow scikit_surgery on twitter
 
-Author(s): Stephen Thompson and Matt Clarkson;
-Contributor(s): Miguel Xochicale, Thomas Dowrick, and Mian Ahmad.
+Author(s): Miguel Xochicale, Thomas Dowrick, Stephen Thompson and Matt Clarkson;
+Contributor(s): Mian Ahmad.
 
 scikit-surgeryutils containing small demo apps and utilities.
 
@@ -89,6 +89,8 @@ You can run the unit tests by installing and running tox:
 
     pip install tox
     tox
+    tox -e docs
+    tox -e lint
 
 
 Encountering Problems?

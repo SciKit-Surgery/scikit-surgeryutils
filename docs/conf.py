@@ -30,7 +30,7 @@ root_dir_rel = os.path.join('..')
 root_dir_abs = os.path.abspath(root_dir_rel)
 module_path = root_dir_abs
 sys.path.insert(0, module_path)
-logo_file = 'weiss_logo.png'
+logo_file = 'sksutils_logo.png'
 logo_path = os.path.join('..', logo_file)
 
 # List of patterns, relative to source directory, that match files and
@@ -45,7 +45,6 @@ exclude_patterns = [
     '.DS_Store',
     '_verion.py',
     'versioneer.py'
-
 ]
 
 # Add any paths that contain custom static files (such as style sheets) here,
@@ -53,27 +52,6 @@ exclude_patterns = [
 # so a file named "default.css" will overwrite the builtin "default.css".
 static_folder = 'static'
 html_static_path = [static_folder]
-
-
-def generate_apidocs(*args):
-    """Generate API docs automatically by trawling the available modules"""
-
-    global working_dir, module_path
-    output_path = working_dir
-    apidoc_command_path = 'sphinx-apidoc'
-    if hasattr(sys, 'real_prefix'):  # called from a virtualenv
-        apidoc_command_path = os.path.join(sys.prefix, 'bin', 'sphinx-apidoc')
-        apidoc_command_path = os.path.abspath(apidoc_command_path)
-    subprocess.check_call(
-        [apidoc_command_path, '--force', '--separate'] +
-        ['-o', output_path, module_path] +
-        [os.path.join(root_dir_abs, pattern) for pattern in exclude_patterns])
-
-
-def setup(app):
-    # Hook to allow for automatic generation of API docs
-    # before doc deployment begins.
-    app.connect('builder-inited', generate_apidocs)
 
 
 # -- General configuration ------------------------------------------------
@@ -108,6 +86,7 @@ modindex_common_prefix = [
 # General information about the project.
 project = u'scikit-surgeryutils'
 copyright = u"2018, University College London"
+# Authors: Miguel Xochicale, Thomas Dowrick, Stephen Thompson, and Matt Clarkson
 author = u'Matt Clarkson'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -115,9 +94,9 @@ author = u'Matt Clarkson'
 # built documents.
 #
 # The short X.Y version.
-version = u''
+version = u'2.0.0'
 # The full version, including alpha/beta/rc tags.
-release = u''
+release = u'2.0.0'
 
 # The short X.Y version.
 # version = sksurgeryutils.__version__
@@ -129,7 +108,7 @@ release = u''
 #
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
-language = None
+# language = en
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = 'sphinx'

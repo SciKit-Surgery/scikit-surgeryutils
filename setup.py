@@ -22,7 +22,7 @@ setup(
     author_email='m.clarkson@ucl.ac.uk',
     license='BSD-3 license',
     classifiers=[
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
 
         'Intended Audience :: Developers',
         'Intended Audience :: Healthcare Industry',
@@ -34,7 +34,7 @@ setup(
 
 
         'Programming Language :: Python',
-        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.8',
 
         'Topic :: Scientific/Engineering :: Information Analysis',
         'Topic :: Scientific/Engineering :: Medical Science Apps.',
@@ -52,8 +52,8 @@ setup(
     install_requires=[
         'six>=1.10',
         'numpy>=1.11',
+        'PySide6>=6.5.1.1',
         'opencv-contrib-python-headless>=4.2.0.32',
-        'pyside6>=6.4.2',
         'scikit-surgerycore>=0.1.7',
         'scikit-surgeryimage>=0.10.1',
         'scikit-surgeryvtk>=2.0.1',

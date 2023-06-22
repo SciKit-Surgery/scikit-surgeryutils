@@ -38,7 +38,8 @@ class OverlayBaseWidget(QWidget):
         else:
             init_vtk_widget = True
 
-        self.vtk_overlay_window = VTKOverlayWindow(init_widget=init_vtk_widget)
+        self.vtk_overlay_window = VTKOverlayWindow(offscreen=False,
+                                                   init_widget=init_vtk_widget)
         self.layout.addWidget(self.vtk_overlay_window)
 
         self.video_source = TimestampedVideoSource(video_source, dims)
@@ -100,8 +101,8 @@ class OverlayOnVideoFeed(OverlayBaseWidget):
         self.vtk_overlay_window.Render()
 
         if platform.system() == 'Linux':
-            self.vtk_overlay_window.Initialize()
-
+            self.vtk_overlay_window.Initialize() #Allows the interactor to initialize itself. # pylint: disable=line-too-long
+            self.vtk_overlay_window.Start() #Start the event loop. # pylint: disable=line-too-long
 
 class OverlayOnVideoFeedCropRecord(OverlayBaseWidget):
     """ Add cropping of the incoming video feed, and the ability to

@@ -12,3 +12,16 @@ tests/output
 # PyInstaller
 build/
 dist/
+
+# docs/
+docs/sksurgeryutils.rst
+docs/sksurgeryutils.*.rst
+docs/sksurgeryvideolag.rst
+docs/sksurgerycharucotest.rst
+docs/sksurgerymakecalibrationdots.rst
+docs/sksurgeryrendermodelslikecamera.rst
+docs/sksurgeryreslice.rst
+docs/sksurgerytextoverlay.rst
+docs/modules.rst
+docs/versioneer.rst
+docs/build
