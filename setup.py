@@ -50,15 +50,14 @@ setup(
     ),
 
     install_requires=[
-        'six>=1.10',
-        'numpy>=1.11',
+        'numpy<2.0.0',
         'PySide6>=6.5.1.1',
         'opencv-contrib-python-headless>=4.2.0.32',
         'scikit-surgerycore>=0.1.7',
         'scikit-surgeryimage>=0.10.1',
-        'scikit-surgeryvtk>=2.0.1',
+        'scikit-surgeryvtk>=2.2.1',
         'scikit-surgeryarucotracker',
-        'scikit-surgerycalibration>=0.2.1'
+        'scikit-surgerycalibration>=0.2.5'
     ],
 
     entry_points={
