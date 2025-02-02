@@ -3,13 +3,12 @@
 """ Demo app, to show OpenCV video and PySide6 widgets together."""
 import sys
 import time
-import six
 import cv2
 from PySide6 import QtCore, QtWidgets, QtGui
 from PySide6.QtCore import Slot
 import sksurgeryutils.utils.image_utils as iu
 
-# pylint: disable=too-many-instance-attributes
+# pylint: disable=too-many-instance-attributes, too-many-positional-arguments
 
 
 class DemoGui(QtWidgets.QWidget):
@@ -82,21 +81,18 @@ class DemoGui(QtWidgets.QWidget):
             self.setMinimumSize(400, 400)
 
     def __del__(self):
-        six.print_("Exiting after " + str(self.elapsed.elapsed()) + " ms.")
+        print("Exiting after " + str(self.elapsed.elapsed()) + " ms.")
 
         if self.number_frames > 0:
 
-            six.print_("grab="
-                       + str(1000 * self.total_time_to_grab
-                             / self.number_frames)
-                       + " ms, decode="
-                       + str(1000 * self.total_time_to_decode
-                             / self.number_frames)
-                       + " ms, display="
-                       + str(1000 * self.total_time_to_display
-                             / self.number_frames)
-                       + " ms."
-                       )
+            print("grab="
+                  + str(1000 * self.total_time_to_grab / self.number_frames)
+                  + " ms, decode="
+                  + str(1000 * self.total_time_to_decode / self.number_frames)
+                  + " ms, display="
+                  + str(1000 * self.total_time_to_display / self.number_frames)
+                  + " ms."
+                  )
 
     @Slot()
     def update_clock(self):
@@ -148,11 +144,11 @@ class DemoGui(QtWidgets.QWidget):
 def run_demo(camera, width, height, grab, clock, fullscreen):
 
     """ Prints command line args, and launches main screen."""
-    six.print_("Camera:" + str(camera))
-    six.print_("  Width:" + str(width))
-    six.print_("  Height:" + str(height))
-    six.print_("Timer interval for grab:" + str(grab))
-    six.print_("Timer interval for clock:" + str(clock))
+    print("Camera:" + str(camera))
+    print("  Width:" + str(width))
+    print("  Height:" + str(height))
+    print("Timer interval for grab:" + str(grab))
+    print("Timer interval for clock:" + str(clock))
 
     app = QtWidgets.QApplication([])
 
