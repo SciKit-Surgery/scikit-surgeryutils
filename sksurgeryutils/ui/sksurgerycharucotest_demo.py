@@ -2,7 +2,6 @@
 
 """ Demo app, to demo charuco markers."""
 import sys
-import six
 import cv2
 from cv2 import aruco
 from PySide6 import QtCore, QtWidgets
@@ -10,7 +9,7 @@ import sksurgeryimage.calibration.charuco as ar
 import sksurgeryutils.utils.image_utils as iu
 
 
-# pylint: disable=too-many-instance-attributes
+# pylint: disable=too-many-instance-attributes, too-many-positional-arguments
 
 
 class CharucoDemoGui(QtWidgets.QWidget):
@@ -116,13 +115,13 @@ class CharucoDemoGui(QtWidgets.QWidget):
 
 def run_demo(camera, width, height, rows, columns, dictionary):
     """ Prints command line args, and launches main screen."""
-    six.print_("Camera:" + str(camera))
-    six.print_("  Width:" + str(width))
-    six.print_("  Height:" + str(height))
-    six.print_("Board:")
-    six.print_("  Rows:" + str(rows))
-    six.print_("  Columns:" + str(columns))
-    six.print_("  Dictionary:" + str(dictionary))
+    print("Camera:" + str(camera))
+    print("  Width:" + str(width))
+    print("  Height:" + str(height))
+    print("Board:")
+    print("  Rows:" + str(rows))
+    print("  Columns:" + str(columns))
+    print("  Dictionary:" + str(dictionary))
 
     app = QtWidgets.QApplication([])
 

@@ -6,6 +6,8 @@ import cv2
 import numpy as np
 
 
+# pylint: disable=too-many-positional-arguments
+
 def make_calibration_dots(width,
                           height,
                           radius,

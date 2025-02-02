@@ -10,6 +10,8 @@ from PySide6.QtWidgets import QApplication
 
 import sksurgeryvtk.widgets.vtk_rendering_generator as rg
 
+# pylint: disable=too-many-positional-arguments
+
 
 def split_string(param_string):
     """
