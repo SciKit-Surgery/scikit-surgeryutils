@@ -47,12 +47,11 @@ class CharucoDemoGui(QtWidgets.QWidget):
                              + str(self.frame.shape[1]))
 
         # pylint: disable=no-member
-        self.dictionary = aruco.Dictionary_get(dictionary)
-        self.board = aruco.CharucoBoard_create(rows,
-                                               columns,
-                                               2,
-                                               1,
-                                               self.dictionary)
+        self.dictionary = aruco.getPredefinedDictionary(dictionary)
+        self.board = aruco.CharucoBoard((rows, columns),
+                                        2,
+                                        11,
+                                        self.dictionary)
 
         self.layout = QtWidgets.QHBoxLayout()
 
