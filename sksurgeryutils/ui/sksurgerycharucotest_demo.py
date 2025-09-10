@@ -49,9 +49,9 @@ class CharucoDemoGui(QtWidgets.QWidget):
         # pylint: disable=no-member
         self.dictionary = aruco.getPredefinedDictionary(dictionary)
         self.board = aruco.CharucoBoard((rows, columns),
-                                        2,
-                                        11,
-                                        self.dictionary)
+                                        squareLength=2,
+                                        markerLength=1,
+                                        dictionary=self.dictionary)
 
         layout = QtWidgets.QHBoxLayout()
 
