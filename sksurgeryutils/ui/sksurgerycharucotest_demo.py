@@ -47,20 +47,19 @@ class CharucoDemoGui(QtWidgets.QWidget):
                              + str(self.frame.shape[1]))
 
         # pylint: disable=no-member
-        self.dictionary = aruco.Dictionary_get(dictionary)
-        self.board = aruco.CharucoBoard_create(rows,
-                                               columns,
-                                               2,
-                                               1,
-                                               self.dictionary)
+        self.dictionary = aruco.getPredefinedDictionary(dictionary)
+        self.board = aruco.CharucoBoard((rows, columns),
+                                        squareLength=2,
+                                        markerLength=1,
+                                        dictionary=self.dictionary)
 
-        self.layout = QtWidgets.QHBoxLayout()
+        layout = QtWidgets.QHBoxLayout()
 
         self.image_label = QtWidgets.QLabel("Image")
         self.image_label.setAlignment(QtCore.Qt.AlignCenter)
-        self.layout.addWidget(self.image_label)
+        layout.addWidget(self.image_label)
 
-        self.setLayout(self.layout)
+        self.setLayout(layout)
 
         self.grab = QtCore.QTimer()
         self.grab.setInterval(50)
