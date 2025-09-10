@@ -29,9 +29,9 @@ class OverlayBaseWidget(QWidget):
     def __init__(self, video_source, dims=None, init_vtk_widget=True):
         super().__init__()
 
-        self.layout = QHBoxLayout(self)
-        self.layout.setContentsMargins(0, 0, 0, 0)
-        self.layout.setSpacing(0)
+        layout = QHBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
 
         if platform.system() == 'Linux':
             init_vtk_widget = False
@@ -40,7 +40,7 @@ class OverlayBaseWidget(QWidget):
 
         self.vtk_overlay_window = VTKOverlayWindow(offscreen=False,
                                                    init_widget=init_vtk_widget)
-        self.layout.addWidget(self.vtk_overlay_window)
+        layout.addWidget(self.vtk_overlay_window)
 
         self.video_source = TimestampedVideoSource(video_source, dims)
 

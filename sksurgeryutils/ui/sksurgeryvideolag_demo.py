@@ -24,8 +24,8 @@ class DemoGui(QtWidgets.QWidget):
         self.font.setBold(True)
         self.text.setFont(self.font)
 
-        self.layout = QtWidgets.QHBoxLayout()
-        self.layout.addWidget(self.text)
+        layout = QtWidgets.QHBoxLayout()
+        layout.addWidget(self.text)
 
         if not isinstance(camera, str) and camera < 0:
             self.cap = None
@@ -51,9 +51,9 @@ class DemoGui(QtWidgets.QWidget):
 
             self.image_label = QtWidgets.QLabel("Hello Image")
             self.image_label.setAlignment(QtCore.Qt.AlignCenter)
-            self.layout.addWidget(self.image_label)
+            layout.addWidget(self.image_label)
 
-        self.setLayout(self.layout)
+        self.setLayout(layout)
 
         self.grab = QtCore.QTimer()
         self.grab.setInterval(grab)

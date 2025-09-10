@@ -202,12 +202,12 @@ class BaseCalibrationWidget(QWidget):
 
         self.driver = driver
 
-        self.layout = QHBoxLayout(self)
-        self.layout.setContentsMargins(0, 0, 0, 0)
-        self.layout.setSpacing(0)
+        layout = QHBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
 
         self.vtk_overlay_window = VTKOverlayWindow()
-        self.layout.addWidget(self.vtk_overlay_window)
+        layout.addWidget(self.vtk_overlay_window)
 
         self.keypress_delay_in_milliseconds \
             = configuration.get("keypress delay in ms", 1000)

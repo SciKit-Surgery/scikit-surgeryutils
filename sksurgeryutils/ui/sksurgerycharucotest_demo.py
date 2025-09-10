@@ -53,13 +53,13 @@ class CharucoDemoGui(QtWidgets.QWidget):
                                         11,
                                         self.dictionary)
 
-        self.layout = QtWidgets.QHBoxLayout()
+        layout = QtWidgets.QHBoxLayout()
 
         self.image_label = QtWidgets.QLabel("Image")
         self.image_label.setAlignment(QtCore.Qt.AlignCenter)
-        self.layout.addWidget(self.image_label)
+        layout.addWidget(self.image_label)
 
-        self.setLayout(self.layout)
+        self.setLayout(layout)
 
         self.grab = QtCore.QTimer()
         self.grab.setInterval(50)
