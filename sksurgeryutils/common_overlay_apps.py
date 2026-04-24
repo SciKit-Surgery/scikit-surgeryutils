@@ -16,6 +16,9 @@ from sksurgeryvtk.models.vtk_surface_model_directory_loader \
 from sksurgeryvtk.widgets.vtk_overlay_window import VTKOverlayWindow
 
 
+# pylint:disable=no-member
+
+
 class OverlayBaseWidget(QWidget):
     """
     Base class for applications that use vtk_overlay_window.
