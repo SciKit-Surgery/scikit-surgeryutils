@@ -49,6 +49,7 @@ def run_demo(models_file,
              background_image,
              intrinsic_file,
              camera_to_world_matrix,
+             world_to_camera_matrix,
              clippingrange,
              output_file):
 
@@ -59,7 +60,12 @@ def run_demo(models_file,
     if len(clip) != 2:
         raise ValueError("Clipping range not valid:" + str(clip))
 
-    c2w = np.loadtxt(camera_to_world_matrix)
+    c2w = np.eye(4)
+    if camera_to_world_matrix and len(camera_to_world_matrix) > 0:
+        c2w = np.loadtxt(camera_to_world_matrix)
+    if world_to_camera_matrix and len(world_to_camera_matrix) > 0:
+        w2c = np.loadtxt(world_to_camera_matrix)
+        c2w = np.linalg.inv(w2c)
     c2w = orthogonalize_4x4(c2w)
 
     # Loading reference data.

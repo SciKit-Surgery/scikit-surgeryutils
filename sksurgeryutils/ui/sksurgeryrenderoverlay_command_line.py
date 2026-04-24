@@ -36,6 +36,11 @@ def main(args=None):
                         type=str,
                         help="File path to camera to world matrix. ")
 
+    parser.add_argument("-w2c", "--world_to_camera_matrix",
+                        required=False,
+                        type=str,
+                        help="File path to world to camera matrix. ")
+
     parser.add_argument("-r", "--clippingrange",
                         required=False,
                         default="1,1000",
@@ -62,5 +67,6 @@ def main(args=None):
              args.background,
              args.intrinsic_matrix,
              args.camera_to_world_matrix,
+             args.world_to_camera_matrix,
              args.clippingrange,
              args.output_file)
