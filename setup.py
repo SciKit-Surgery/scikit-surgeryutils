@@ -71,6 +71,7 @@ setup(
             'sksurgerytransformpolydata=sksurgeryutils.ui.sksurgeryrendermodelslikecamera_command_line:main',
             'sksurgeryvideocalibration=sksurgeryutils.ui.sksurgeryvideocalibration_command_line:main',
             'sksurgeryvideocalibrationchecker=sksurgeryutils.ui.sksurgeryvideocalibrationchecker_command_line:main',
+            'sksurgeryrenderoverlay=sksurgeryutils.ui.sksurgeryrenderoverlay_command_line:main',
         ],
     },
 )
