@@ -221,9 +221,6 @@ class StereoRendererApp:
                 right_camera_matrix=self.right_intrinsics,
                 clipping_range=self.clipping_range,
             )
-            #self.stereo_window.left_widget.GetRenderWindow().GetInteractor().Disable()
-            #self.stereo_window.right_widget.GetRenderWindow().GetInteractor().Disable()
-            #self.stereo_window.interlaced_widget.GetRenderWindow().GetInteractor().Disable()
         else:
             self.stereo_window = VTKStackedStereoWindow(
                 offscreen=False,
@@ -231,8 +228,6 @@ class StereoRendererApp:
                 right_camera_matrix=self.right_intrinsics,
                 clipping_range=self.clipping_range
             )
-            #self.stereo_window.left_widget.GetRenderWindow().GetInteractor().Disable()
-            #self.stereo_window.right_widget.GetRenderWindow().GetInteractor().Disable()
         self.stereo_window.add_vtk_models(self.models)
 
        # Set up the custom interactor on the overlay window
