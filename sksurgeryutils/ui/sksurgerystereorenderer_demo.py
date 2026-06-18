@@ -42,21 +42,47 @@ class TrackballActorWithZoom(vtk.vtkInteractorStyleTrackballActor):
     we translate the picked actor along the camera's view direction
     (towards/away from the camera).
     """
-
-    def __init__(self):
+    def __init__(self, stereo_render_app):
         super().__init__()
-        self.AddObserver("MouseWheelForwardEvent", self._on_scroll_forward)
-        self.AddObserver("MouseWheelBackwardEvent", self._on_scroll_backward)
 
-    def _on_scroll_forward(self, obj, event):
+        if stereo_render_app is None:
+            raise ValueError("stereo_render_app is None - programming bug.")
+        self.stereo_render_app = stereo_render_app
+
+        self.AddObserver("RightButtonPressEvent", self.right_button_press_event)
+        self.AddObserver("RightButtonReleaseEvent", self.right_button_release_event)
+        self.AddObserver("MouseWheelForwardEvent", self.mouse_wheel_forward_event)
+        self.AddObserver("MouseWheelBackwardEvent", self.mouse_wheel_backward_event)
+
+    def right_button_press_event(self, obj, event):
+        """
+        Process mouse right button press event.
+
+        We do NOT want default scaling behaviour of
+        vtkInteractorStyleTrackballActor, so we override it to look
+        like a left button press with the control key down (spin).
+        """
+        interactor = self.GetInteractor()
+        interactor.SetControlKey(True)
+        self.OnLeftButtonDown()
+
+    def right_button_release_event(self, obj, event):
+        """
+        Process mouse right button release event.
+        """
+        self.OnLeftButtonUp()
+        interactor = self.GetInteractor()
+        interactor.SetControlKey(False)
+
+    def mouse_wheel_forward_event(self, obj, event):
         """Move picked actor towards the camera."""
         del obj, event
-        self._dolly_actor(-5.0)
+        self._dolly_actor(-2.0)
 
-    def _on_scroll_backward(self, obj, event):
+    def mouse_wheel_backward_event(self, obj, event):
         """Move picked actor away from the camera."""
         del obj, event
-        self._dolly_actor(5.0)
+        self._dolly_actor(2.0)
 
     def _dolly_actor(self, distance):
         """
@@ -73,21 +99,29 @@ class TrackballActorWithZoom(vtk.vtkInteractorStyleTrackballActor):
         if renderer is None:
             return
 
-        camera = renderer.GetActiveCamera()
-        view_dir = np.array(camera.GetDirectionOfProjection())
-        view_dir = view_dir / (np.linalg.norm(view_dir) + 1e-9)
-
-        # Find the prop under the mouse, or use the last interaction prop
-        prop = self.GetInteractionProp()
-        if prop is None:
+        model = self.stereo_render_app.get_pickable_model()
+        if model is None:
             return
+        current_m2w = model.actor.GetMatrix()
 
-        # Get current position and translate
-        current_pos = np.array(prop.GetPosition())
-        new_pos = current_pos + view_dir * distance
-        prop.SetPosition(new_pos[0], new_pos[1], new_pos[2])
+        camera = renderer.GetActiveCamera()
+        position = camera.GetPosition()
+        focal_point = camera.GetFocalPoint()
+        diff = np.zeros((3, 1))
+        diff[0][0] = focal_point[0] - position[0]
+        diff[1][0] = focal_point[1] - position[1]
+        diff[2][0] = focal_point[2] - position[2]
+        normalised = diff / np.linalg.norm(diff)
+        if distance < 0:
+            normalised = normalised * -1
+        vector_to_move = distance * normalised
+        new_m2w = vtk.vtkMatrix4x4()
+        new_m2w.DeepCopy(current_m2w)
+        new_m2w.SetElement(0, 3, new_m2w.GetElement(0, 3) + vector_to_move[0][0])
+        new_m2w.SetElement(1, 3, new_m2w.GetElement(1, 3) + vector_to_move[1][0])
+        new_m2w.SetElement(2, 3, new_m2w.GetElement(2, 3) + vector_to_move[2][0])
 
-        interactor.Render()
+        model.actor.PokeMatrix(new_m2w)
 
 
 class StereoRendererApp:
@@ -119,6 +153,7 @@ class StereoRendererApp:
                  right_intrinsics,
                  left_to_right,
                  models_config,
+                 models_dir,
                  clipping_range,
                  left_video_source,
                  right_video_source,
@@ -166,7 +201,7 @@ class StereoRendererApp:
                     f"Cannot open right video source: {right_video_source}")
 
         # Load models
-        loader = sml.SurfaceModelLoader(models_config)
+        loader = sml.SurfaceModelLoader(models_config, models_dir)
         self.models = list(loader.get_surface_models())
         self.named_surfaces = loader.named_surfaces
 
@@ -184,8 +219,11 @@ class StereoRendererApp:
                 offscreen=False,
                 left_camera_matrix=self.left_intrinsics,
                 right_camera_matrix=self.right_intrinsics,
-                clipping_range=self.clipping_range
+                clipping_range=self.clipping_range,
             )
+            #self.stereo_window.left_widget.GetRenderWindow().GetInteractor().Disable()
+            #self.stereo_window.right_widget.GetRenderWindow().GetInteractor().Disable()
+            #self.stereo_window.interlaced_widget.GetRenderWindow().GetInteractor().Disable()
         else:
             self.stereo_window = VTKStackedStereoWindow(
                 offscreen=False,
@@ -193,15 +231,13 @@ class StereoRendererApp:
                 right_camera_matrix=self.right_intrinsics,
                 clipping_range=self.clipping_range
             )
+            #self.stereo_window.left_widget.GetRenderWindow().GetInteractor().Disable()
+            #self.stereo_window.right_widget.GetRenderWindow().GetInteractor().Disable()
         self.stereo_window.add_vtk_models(self.models)
 
-        # Disable interactors on stereo window
-        self.stereo_window.left_widget.GetInteractor().Disable()
-        self.stereo_window.right_widget.GetInteractor().Disable()
-
-        # Set up the custom interactor on the overlay window
-        self.interactor_style = TrackballActorWithZoom()
-        interactor = self.overlay_window.GetInteractor()
+       # Set up the custom interactor on the overlay window
+        self.interactor_style = TrackballActorWithZoom(self)
+        interactor = self.overlay_window.GetRenderWindow().GetInteractor()
         interactor.SetInteractorStyle(self.interactor_style)
 
         # Connect interaction end to sync callback
@@ -230,6 +266,9 @@ class StereoRendererApp:
         # Apply initial camera pose if provided
         if camera_to_world is not None:
             self.set_camera_to_world(camera_to_world)
+        #else:
+            # Or put it at the origin, looking along z-axis.
+        #    self.set_camera_to_world(np.eye(4))
 
         # Timer for update loop
         self.timer = QTimer()
@@ -357,38 +396,32 @@ class StereoRendererApp:
         actor references, this keeps everything in sync across
         all views.
         """
-        # Find the pickable model and get its current user matrix
-        pickable_model = None
-        for model in self.models:
-            if model.get_pickable():
-                pickable_model = model
-                break
-
+        pickable_model = self.get_pickable_model()
         if pickable_model is None:
             return
 
-        user_matrix = pickable_model.get_user_matrix()
+        user_matrix = pickable_model.actor.GetMatrix()
         if user_matrix is None:
             return
 
         # Apply the same user matrix to all other models
         for model in self.models:
             if model is not pickable_model:
-                model.set_user_matrix(user_matrix)
+                model.actor.PokeMatrix(user_matrix)
 
         self.overlay_window.Render()
         self.stereo_window.render()
 
-    @staticmethod
-    def _set_actor_matrix(actor, matrix_4x4):
+    def get_pickable_model(self):
         """
-        Set a 4x4 numpy matrix as the user matrix on a VTK actor.
+        Returns the pickable model. Only 1 should be pickable in the .json file.
         """
-        vtk_matrix = vtk.vtkMatrix4x4()
-        for i in range(4):
-            for j in range(4):
-                vtk_matrix.SetElement(i, j, matrix_4x4[i, j])
-        actor.SetUserMatrix(vtk_matrix)
+        pickable_model = None
+        for model in self.models:
+            if model.get_pickable():
+                pickable_model = model
+                break
+        return pickable_model
 
     def set_camera_to_world(self, camera_to_world):
         """
@@ -419,7 +452,7 @@ class StereoRendererApp:
                 vtk_matrix.SetElement(i, j, model_to_world[i, j])
 
         for model in self.models:
-            model.set_user_matrix(vtk_matrix)
+            model.actor.PokeMatrix(vtk_matrix)
 
         self.overlay_window.Render()
         self.stereo_window.render()
@@ -475,6 +508,7 @@ def run_demo(left_intrinsics_file,
     # Load models config
     config_manager = cm.ConfigurationManager(models_file)
     models_config = config_manager.get_copy()
+    models_dir = os.path.dirname(models_file)
 
     # Load optional initial poses
     model_to_world = None
@@ -491,6 +525,7 @@ def run_demo(left_intrinsics_file,
         right_intrinsics=right_intrinsics,
         left_to_right=left_to_right,
         models_config=models_config,
+        models_dir=models_dir,
         clipping_range=clipping_range,
         left_video_source=left_video,
         right_video_source=right_video,
