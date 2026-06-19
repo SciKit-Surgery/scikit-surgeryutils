@@ -259,6 +259,7 @@ class StereoRendererApp:
             self.set_model_to_world(model_to_world)
 
         # Apply initial camera pose if provided
+        self.camera_to_world = None
         if camera_to_world is not None:
             self.set_camera_to_world(camera_to_world)
         else:
@@ -344,6 +345,10 @@ class StereoRendererApp:
         if left_frame is None or right_frame is None:
             LOGGER.warning("Could not read frame from video source.")
             return
+
+        # For now, the camera is at the origin, and we move the model.
+        # So, we can also defend against the user interacting with the 3D window.
+        self.set_camera_to_world(np.eye(4))
 
         # Set left image on the interactive overlay
         self.overlay_window.set_video_image(left_frame)
@@ -447,11 +452,12 @@ class StereoRendererApp:
         :param camera_to_world: 4x4 numpy ndarray, left camera to world.
         """
         # Set left camera on overlay
+        self.camera_to_world = camera_to_world
         self.overlay_window.set_camera_pose(camera_to_world)
 
         # Set stereo cameras using the left-to-right extrinsic
         self.stereo_window.set_poses_from_left_camera(
-            camera_to_world, self.left_to_right)
+            self.camera_to_world, self.left_to_right)
 
     def set_model_to_world(self, model_to_world):
         """

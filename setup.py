@@ -72,6 +72,7 @@ setup(
             'sksurgeryvideocalibration=sksurgeryutils.ui.sksurgeryvideocalibration_command_line:main',
             'sksurgeryvideocalibrationchecker=sksurgeryutils.ui.sksurgeryvideocalibrationchecker_command_line:main',
             'sksurgeryrenderoverlay=sksurgeryutils.ui.sksurgeryrenderoverlay_command_line:main',
+            'sksurgerystereorenderer=sksurgeryutils.ui.sksurgerystereorenderer_command_line:main',
         ],
     },
 )
