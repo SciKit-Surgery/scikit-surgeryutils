@@ -16,7 +16,7 @@ import cv2
 import numpy as np
 import vtk
 
-from PySide6.QtCore import QTimer
+from PySide6.QtCore import QTimer, Qt
 from PySide6.QtWidgets import QApplication, QMainWindow
 
 import sksurgerycore.configuration.configuration_manager as cm
@@ -244,11 +244,13 @@ class StereoRendererApp:
         # Create main windows and handle screen placement
         self.primary_main_window = QMainWindow()
         self.primary_main_window.setCentralWidget(self.overlay_window)
+        self.primary_main_window.setContentsMargins(0, 0, 0, 0)
         self.primary_main_window.setWindowTitle(
             "Stereo Renderer - Interactive")
 
         self.secondary_main_window = QMainWindow()
         self.secondary_main_window.setCentralWidget(self.stereo_window)
+        self.secondary_main_window.setContentsMargins(0, 0, 0, 0)
         self.secondary_main_window.setWindowTitle(
             "Stereo Renderer - Stereo Output")
 
@@ -313,10 +315,11 @@ class StereoRendererApp:
 
             primary_geom = primary_screen.geometry()
             self.primary_main_window.setGeometry(primary_geom)
+            self.primary_main_window.setWindowFlags(Qt.WindowType.FramelessWindowHint)
             self.primary_main_window.showMaximized()
-
             secondary_geom = secondary_screen.geometry()
             self.secondary_main_window.setGeometry(secondary_geom)
+            self.secondary_main_window.setWindowFlags(Qt.WindowType.FramelessWindowHint)
             self.secondary_main_window.showMaximized()
         else:
             self.primary_main_window.show()
