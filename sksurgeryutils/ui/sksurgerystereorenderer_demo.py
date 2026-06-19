@@ -10,7 +10,6 @@ VTKStackedStereoWindow for stereo output.
 """
 
 import logging
-import sys
 import os
 
 import cv2
@@ -32,7 +31,6 @@ from sksurgeryvtk.widgets.vtk_interlaced_stereo_window import \
 LOGGER = logging.getLogger(__name__)
 
 # pylint: disable=too-many-instance-attributes, too-many-positional-arguments
-
 
 class TrackballActorWithZoom(vtk.vtkInteractorStyleTrackballActor):
     """
@@ -62,6 +60,7 @@ class TrackballActorWithZoom(vtk.vtkInteractorStyleTrackballActor):
         vtkInteractorStyleTrackballActor, so we override it to look
         like a left button press with the control key down (spin).
         """
+        del obj, event
         interactor = self.GetInteractor()
         interactor.SetControlKey(True)
         self.OnLeftButtonDown()
@@ -70,6 +69,7 @@ class TrackballActorWithZoom(vtk.vtkInteractorStyleTrackballActor):
         """
         Process mouse right button release event.
         """
+        del obj, event
         self.OnLeftButtonUp()
         interactor = self.GetInteractor()
         interactor.SetControlKey(False)
@@ -112,8 +112,6 @@ class TrackballActorWithZoom(vtk.vtkInteractorStyleTrackballActor):
         diff[1][0] = focal_point[1] - position[1]
         diff[2][0] = focal_point[2] - position[2]
         normalised = diff / np.linalg.norm(diff)
-        if distance < 0:
-            normalised = normalised * -1
         vector_to_move = distance * normalised
         new_m2w = vtk.vtkMatrix4x4()
         new_m2w.DeepCopy(current_m2w)
@@ -148,6 +146,7 @@ class StereoRendererApp:
     :param stereo_mode: str, 'stacked' or 'interlaced'
     """
 
+    # pylint:disable=too-many-arguments, too-many-branches
     def __init__(self,
                  left_intrinsics,
                  right_intrinsics,
@@ -203,7 +202,8 @@ class StereoRendererApp:
         # Load models
         loader = sml.SurfaceModelLoader(models_config, models_dir)
         self.models = list(loader.get_surface_models())
-        self.named_surfaces = loader.named_surfaces
+        if len(self.models) == 0:
+            raise ValueError("No models found")
 
         # Create the interactive overlay window (primary display)
         self.overlay_window = VTKOverlayWindow(
@@ -261,9 +261,17 @@ class StereoRendererApp:
         # Apply initial camera pose if provided
         if camera_to_world is not None:
             self.set_camera_to_world(camera_to_world)
-        #else:
-            # Or put it at the origin, looking along z-axis.
-        #    self.set_camera_to_world(np.eye(4))
+        else:
+            # Or put camera at the origin, looking along z-axis.
+            self.set_camera_to_world(np.eye(4))
+
+            # Which means we need to put model in front of camera.
+            centroid = self.get_pickable_model_centroid()
+            m2w = np.eye(4)
+            m2w[0][3] = -centroid[0]
+            m2w[1][3] = -centroid[1]
+            m2w[2][3] = -centroid[2] + 250
+            self.set_model_to_world(m2w)
 
         # Timer for update loop
         self.timer = QTimer()
@@ -416,7 +424,18 @@ class StereoRendererApp:
             if model.get_pickable():
                 pickable_model = model
                 break
+        if pickable_model is None:
+            raise ValueError("No pickable model. Please edit .json file")
         return pickable_model
+
+    def get_pickable_model_centroid(self):
+        """
+        Returns the centroid of the pickable mode. Only 1 should be pickable.
+        """
+        pickable_model = self.get_pickable_model()
+        centre = pickable_model.actor.GetCenter()
+        LOGGER.info("Centroid is %s", centre)
+        return centre
 
     def set_camera_to_world(self, camera_to_world):
         """
