@@ -54,6 +54,7 @@ Open a terminal, load your virtual environment and run the application as `pytho
 * sksurgeryreslice.py - DICOM reslice widget demo.
 * sksurgerytextoverlay.py - VTK text overlay demo.
 * sksurgerytransformpolydata.py - Read a surface mesh (.vtk,.vtp,.stl,.ply file), transform by 4x4 matrix and write as .vtk.
+* sksurgerystereorenderer.py - Reads a set of meshes, overlays on stereo video. `Documentation <stereo_renderer_demo.rst>`_.
 
 .. features-end
 
@@ -80,10 +81,10 @@ You can clone the repository using the following command:
     git clone https://github.com/SciKit-Surgery/scikit-surgeryutils
 
 
-Running the tests
-^^^^^^^^^^^^^^^^^
+Installing the dependencies, running the tests
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-You can run the unit tests by installing and running tox:
+You can install dependencies and run the unit tests by installing and running tox:
 
 ::
 
@@ -92,6 +93,7 @@ You can run the unit tests by installing and running tox:
     tox -e docs
     tox -e lint
 
+Tox will create a separate venv in ``.tox/test``. See ``tox.ini`` for commands that tox runs.
 
 Encountering Problems?
 ^^^^^^^^^^^^^^^^^^^^^^

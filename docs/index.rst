@@ -12,6 +12,7 @@ scikit-surgeryutils documentation
    :maxdepth: 2
 
    readme
+   stereo_renderer_demo
 
 .. toctree::
    :maxdepth: 2
