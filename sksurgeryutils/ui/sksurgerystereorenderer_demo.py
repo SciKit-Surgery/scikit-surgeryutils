@@ -39,6 +39,10 @@ class TrackballActorWithZoom(vtk.vtkInteractorStyleTrackballActor):
     Overrides the scroll/dolly behaviour: instead of scaling the actor,
     we translate the picked actor along the camera's view direction
     (towards/away from the camera).
+
+    Also overrides left-button-down to find the nearest actor when
+    the user clicks on empty space, so that interaction always targets
+    the closest visible actor regardless of where the click lands.
     """
     def __init__(self, stereo_render_app):
         super().__init__()
@@ -47,10 +51,96 @@ class TrackballActorWithZoom(vtk.vtkInteractorStyleTrackballActor):
             raise ValueError("stereo_render_app is None - programming bug.")
         self.stereo_render_app = stereo_render_app
 
+        self.Picker = vtk.vtkCellPicker()
+
         self.AddObserver("RightButtonPressEvent", self.right_button_press_event)
         self.AddObserver("RightButtonReleaseEvent", self.right_button_release_event)
         self.AddObserver("MouseWheelForwardEvent", self.mouse_wheel_forward_event)
         self.AddObserver("MouseWheelBackwardEvent", self.mouse_wheel_backward_event)
+
+    def OnLeftButtonDown(self):
+        """
+        Override left-button-down to find the nearest actor when the
+        user clicks on empty space. This provides more forgiving
+        interaction — wherever you click, the closest actor is selected.
+        """
+        click_x, click_y = self.GetInteractor().GetEventPosition()
+        renderer = self.GetInteractor().FindPokedRenderer(click_x, click_y)
+        if not renderer:
+            return
+
+        # Try the standard pick first (did they click directly on something?)
+        self.Picker.Pick(click_x, click_y, 0, renderer)
+        picked_actor = self.Picker.GetActor()
+
+        # If they clicked empty space, find the nearest actor manually
+        if not picked_actor:
+            picked_actor = self._find_nearest_actor(click_x, click_y, renderer)
+
+        if picked_actor:
+            # Force VTK to think it picked this actor.
+            # vtkInteractorStyleTrackballActor stores the picked prop
+            # internally as InteractionProp.
+            self.InteractionProp = picked_actor
+
+        # Forward the event to the parent class for actual moving/dragging
+        super().OnLeftButtonDown()
+
+    def _find_nearest_actor(self, click_x, click_y, renderer):
+        """
+        Convert click position to world coordinates, evaluate proximity
+        to all visible pickable actors, and return the closest one.
+
+        Only actors whose corresponding model is marked pickable in the
+        config are considered candidates.
+
+        :param click_x: pixel x coordinate of click
+        :param click_y: pixel y coordinate of click
+        :param renderer: the vtkRenderer for the clicked viewport
+        :returns: the nearest pickable vtkActor, or None
+        """
+        # Convert pixel coordinates to world coordinates
+        renderer.SetDisplayPoint(click_x, click_y, 0)
+        renderer.DisplayToWorld()
+        world_point = renderer.GetWorldPoint()
+        # Strip the homogeneous 'w' coordinate
+        click_world = world_point[:3]
+
+        # Build set of actors that are pickable according to the config
+        pickable_actors = {
+            model.actor for model in self.stereo_render_app.models
+            if model.get_pickable()
+        }
+
+        actors = renderer.GetActors()
+        actors.InitTraversal()
+
+        closest_actor = None
+        min_distance = float('inf')
+
+        for _ in range(actors.GetNumberOfItems()):
+            actor = actors.GetNextActor()
+            if not actor or not actor.GetVisibility():
+                continue
+            if actor not in pickable_actors:
+                continue
+
+            # Calculate distance from click to the centre of the actor's
+            # bounding box in world space.
+            bounds = actor.GetBounds()
+            center_x = (bounds[0] + bounds[1]) / 2.0
+            center_y = (bounds[2] + bounds[3]) / 2.0
+            center_z = (bounds[4] + bounds[5]) / 2.0
+            actor_center = (center_x, center_y, center_z)
+
+            distance = vtk.vtkMath.Distance2BetweenPoints(
+                click_world, actor_center)
+
+            if distance < min_distance:
+                min_distance = distance
+                closest_actor = actor
+
+        return closest_actor
 
     def right_button_press_event(self, obj, event):
         """
@@ -86,8 +176,8 @@ class TrackballActorWithZoom(vtk.vtkInteractorStyleTrackballActor):
 
     def _dolly_actor(self, distance):
         """
-        Translate the currently picked actor along the camera
-        view direction by the given distance.
+        Translate the currently interacted-with actor along the camera
+        view direction by the given distance, then sync all models.
         """
         interactor = self.GetInteractor()
         if interactor is None:
@@ -99,10 +189,11 @@ class TrackballActorWithZoom(vtk.vtkInteractorStyleTrackballActor):
         if renderer is None:
             return
 
-        model = self.stereo_render_app.get_pickable_model()
-        if model is None:
+        # Use whichever actor is currently being interacted with
+        actor = self.InteractionProp
+        if actor is None:
             return
-        current_m2w = model.actor.GetMatrix()
+        current_m2w = actor.GetMatrix()
 
         camera = renderer.GetActiveCamera()
         position = camera.GetPosition()
@@ -119,7 +210,10 @@ class TrackballActorWithZoom(vtk.vtkInteractorStyleTrackballActor):
         new_m2w.SetElement(1, 3, new_m2w.GetElement(1, 3) + vector_to_move[1][0])
         new_m2w.SetElement(2, 3, new_m2w.GetElement(2, 3) + vector_to_move[2][0])
 
-        model.actor.PokeMatrix(new_m2w)
+        actor.PokeMatrix(new_m2w)
+
+        # Sync all models to the new transform
+        self.stereo_render_app.sync_all_models_to_actor(actor)
 
 
 class StereoRendererApp:
@@ -385,8 +479,8 @@ class StereoRendererApp:
 
     def _on_interaction(self, obj, event):
         """
-        Called during an interaction. Syncs the pickable actor's
-        model-to-world to all windows.
+        Called during an interaction. Syncs the currently interacted
+        actor's model-to-world to all other models.
         """
         del obj, event
         self._sync_models_to_stereo()
@@ -401,23 +495,27 @@ class StereoRendererApp:
 
     def _sync_models_to_stereo(self):
         """
-        Find the pickable model (the one the user interacts with),
-        read its current user matrix, and apply that same matrix
-        to all other models. Since all windows share the same model
-        actor references, this keeps everything in sync across
-        all views.
+        Read the current transform from whichever actor the user is
+        interacting with (InteractionProp), and sync all models.
         """
-        pickable_model = self.get_pickable_model()
-        if pickable_model is None:
+        interacted_actor = self.interactor_style.InteractionProp
+        if interacted_actor is None:
             return
+        self.sync_all_models_to_actor(interacted_actor)
 
-        user_matrix = pickable_model.actor.GetMatrix()
+    def sync_all_models_to_actor(self, actor):
+        """
+        Apply the given actor's current matrix to all other models,
+        then render both windows.
+
+        :param actor: the vtkActor whose matrix should be propagated
+        """
+        user_matrix = actor.GetMatrix()
         if user_matrix is None:
             return
 
-        # Apply the same user matrix to all other models
         for model in self.models:
-            if model is not pickable_model:
+            if model.actor is not actor:
                 model.actor.PokeMatrix(user_matrix)
 
         self.overlay_window.Render()
@@ -425,20 +523,19 @@ class StereoRendererApp:
 
     def get_pickable_model(self):
         """
-        Returns the pickable model. Only 1 should be pickable in the .json file.
+        Returns the first pickable model found in the model list.
+        Multiple models may be pickable — this returns the first one,
+        which is used for initial positioning calculations.
         """
-        pickable_model = None
         for model in self.models:
             if model.get_pickable():
-                pickable_model = model
-                break
-        if pickable_model is None:
-            raise ValueError("No pickable model. Please edit .json file")
-        return pickable_model
+                return model
+        raise ValueError("No pickable model. Please edit .json file")
 
     def get_pickable_model_centroid(self):
         """
-        Returns the centroid of the pickable mode. Only 1 should be pickable.
+        Returns the centroid of the first pickable model. Used for
+        initial camera/model positioning.
         """
         pickable_model = self.get_pickable_model()
         centre = pickable_model.actor.GetCenter()
