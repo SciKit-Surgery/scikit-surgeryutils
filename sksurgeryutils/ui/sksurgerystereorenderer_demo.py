@@ -52,6 +52,7 @@ class TrackballActorWithZoom(vtk.vtkInteractorStyleTrackballActor):
         self.stereo_render_app = stereo_render_app
 
         self.Picker = vtk.vtkCellPicker()
+        self.interaction_prop = None
 
         self.AddObserver("RightButtonPressEvent", self.right_button_press_event)
         self.AddObserver("RightButtonReleaseEvent", self.right_button_release_event)
@@ -79,10 +80,8 @@ class TrackballActorWithZoom(vtk.vtkInteractorStyleTrackballActor):
             picked_actor = self._find_nearest_actor(click_x, click_y, renderer)
 
         if picked_actor:
-            # Force VTK to think it picked this actor.
-            # vtkInteractorStyleTrackballActor stores the picked prop
-            # internally as InteractionProp.
-            self.InteractionProp = picked_actor
+            # Track which actor we're interacting with.
+            self.interaction_prop = picked_actor
 
         # Forward the event to the parent class for actual moving/dragging
         super().OnLeftButtonDown()
@@ -201,7 +200,7 @@ class TrackballActorWithZoom(vtk.vtkInteractorStyleTrackballActor):
             return
 
         # Use whichever actor is currently being interacted with
-        actor = self.InteractionProp
+        actor = self.interaction_prop
         if actor is None:
             return
         current_m2w = actor.GetMatrix()
@@ -515,9 +514,9 @@ class StereoRendererApp:
     def _sync_models_to_stereo(self):
         """
         Read the current transform from whichever actor the user is
-        interacting with (InteractionProp), and sync all models.
+        interacting with (interaction_prop), and sync all models.
         """
-        interacted_actor = self.interactor_style.InteractionProp
+        interacted_actor = self.interactor_style.interaction_prop
         if interacted_actor is None:
             return
         self.sync_all_models_to_actor(interacted_actor)
