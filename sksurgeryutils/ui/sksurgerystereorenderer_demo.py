@@ -31,7 +31,7 @@ from sksurgeryvtk.widgets.vtk_interlaced_stereo_window import \
 
 LOGGER = logging.getLogger(__name__)
 
-# pylint: disable=too-many-instance-attributes, too-many-positional-arguments
+# pylint: disable=too-many-instance-attributes, too-many-positional-arguments, invalid-name
 
 class TrackballActorWithZoom(vtk.vtkInteractorStyleTrackballActor):
     """
