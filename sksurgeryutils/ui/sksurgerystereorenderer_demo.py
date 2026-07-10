@@ -551,17 +551,6 @@ class StereoRendererApp:
         self.overlay_window.Render()
         self.stereo_window.render()
 
-    def get_pickable_model(self):
-        """
-        Returns the first pickable model found in the model list.
-        Multiple models may be pickable — this returns the first one,
-        which is used for initial positioning calculations.
-        """
-        for model in self.models:
-            if model.get_pickable():
-                return model
-        raise ValueError("No pickable model. Please edit .json file")
-
     def get_all_pickable_models_centroid(self):
         """
         Returns the average centroid of all pickable models. Used for
