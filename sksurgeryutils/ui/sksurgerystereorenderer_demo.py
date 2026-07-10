@@ -57,6 +57,7 @@ class TrackballActorWithZoom(vtk.vtkInteractorStyleTrackballActor):
         self.AddObserver("RightButtonReleaseEvent", self.right_button_release_event)
         self.AddObserver("MouseWheelForwardEvent", self.mouse_wheel_forward_event)
         self.AddObserver("MouseWheelBackwardEvent", self.mouse_wheel_backward_event)
+        self.AddObserver("KeyPressEvent", self.key_press_event)
 
     def OnLeftButtonDown(self):
         """
@@ -173,6 +174,16 @@ class TrackballActorWithZoom(vtk.vtkInteractorStyleTrackballActor):
         """Move picked actor away from the camera."""
         del obj, event
         self._dolly_actor(2.0)
+
+    def key_press_event(self, obj, event):
+        """
+        Handle key presses. Pressing 't' toggles visibility of all
+        models marked as toggleable in the config.
+        """
+        del obj, event
+        key = self.GetInteractor().GetKeySym()
+        if key == 't':
+            self.stereo_render_app.toggle_toggleable_models()
 
     def _dolly_actor(self, distance):
         """
@@ -298,6 +309,14 @@ class StereoRendererApp:
         self.models = list(loader.get_surface_models())
         if len(self.models) == 0:
             raise ValueError("No models found")
+
+        # Determine which models are toggleable from config
+        self.toggleable_models = []
+        surfaces = models_config.get('surfaces', {})
+        for model, (_, surface_cfg) in zip(
+                self.models, surfaces.items()):
+            if surface_cfg.get('toggleable', False):
+                self.toggleable_models.append(model)
 
         # Create the interactive overlay window (primary display)
         self.overlay_window = VTKOverlayWindow(
@@ -517,6 +536,17 @@ class StereoRendererApp:
         for model in self.models:
             if model.actor is not actor:
                 model.actor.PokeMatrix(user_matrix)
+
+        self.overlay_window.Render()
+        self.stereo_window.render()
+
+    def toggle_toggleable_models(self):
+        """
+        Toggle the visibility of all models marked as toggleable
+        in the config, then re-render both windows.
+        """
+        for model in self.toggleable_models:
+            model.toggle_visibility()
 
         self.overlay_window.Render()
         self.stereo_window.render()
