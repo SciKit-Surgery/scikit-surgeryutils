@@ -363,7 +363,7 @@ class StereoRendererApp:
             self.set_camera_to_world(np.eye(4))
 
             # Which means we need to put model in front of camera.
-            centroid = self.get_pickable_model_centroid()
+            centroid = self.get_all_pickable_models_centroid()
             m2w = np.eye(4)
             m2w[0][3] = -centroid[0]
             m2w[1][3] = -centroid[1]
@@ -532,15 +532,23 @@ class StereoRendererApp:
                 return model
         raise ValueError("No pickable model. Please edit .json file")
 
-    def get_pickable_model_centroid(self):
+    def get_all_pickable_models_centroid(self):
         """
-        Returns the centroid of the first pickable model. Used for
-        initial camera/model positioning.
+        Returns the average centroid of all pickable models. Used for
+        initial camera/model positioning so the whole group is at a
+        reasonable distance from the camera.
         """
-        pickable_model = self.get_pickable_model()
-        centre = pickable_model.actor.GetCenter()
-        LOGGER.info("Centroid is %s", centre)
-        return centre
+        centroids = []
+        for model in self.models:
+            if model.get_pickable():
+                centroids.append(model.actor.GetCenter())
+
+        if not centroids:
+            raise ValueError("No pickable model. Please edit .json file")
+
+        centroid = np.mean(centroids, axis=0)
+        LOGGER.info("Combined centroid is %s", centroid)
+        return centroid
 
     def set_camera_to_world(self, camera_to_world):
         """
