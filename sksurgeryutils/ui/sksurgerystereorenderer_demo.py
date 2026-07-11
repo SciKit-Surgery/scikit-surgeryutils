@@ -31,7 +31,7 @@ from sksurgeryvtk.widgets.vtk_interlaced_stereo_window import \
 
 LOGGER = logging.getLogger(__name__)
 
-# pylint: disable=too-many-instance-attributes, too-many-positional-arguments, invalid-name
+# pylint: disable=too-many-instance-attributes, too-many-positional-arguments, invalid-name, too-many-arguments
 
 class TrackballActorWithZoom(vtk.vtkInteractorStyleTrackballActor):
     """
@@ -450,12 +450,14 @@ class StereoRendererApp:
                  right_video_source,
                  model_to_world=None,
                  camera_to_world=None,
-                 stereo_mode='stacked'):
+                 stereo_mode='stacked',
+                 distance_to_camera=250):
 
         self.left_intrinsics = left_intrinsics
         self.right_intrinsics = right_intrinsics
         self.left_to_right = left_to_right
         self.clipping_range = clipping_range
+        self.distance_to_camera = distance_to_camera
 
         # Determine if sources are static images or video
         self.left_is_static = self._is_static_image(left_video_source)
@@ -573,7 +575,7 @@ class StereoRendererApp:
             m2w = np.eye(4)
             m2w[0][3] = -centroid[0]
             m2w[1][3] = -centroid[1]
-            m2w[2][3] = -centroid[2] + 250
+            m2w[2][3] = -centroid[2] + self.distance_to_camera
             self.set_model_to_world(m2w)
 
         # Timer for update loop
@@ -810,7 +812,8 @@ def run_demo(left_intrinsics_file,
              right_video,
              model_to_world_file=None,
              camera_to_world_file=None,
-             stereo_mode='stacked'):
+             stereo_mode='stacked',
+             distance_to_camera=250):
     """
     Main entry point to run the stereo renderer demo.
 
@@ -865,7 +868,8 @@ def run_demo(left_intrinsics_file,
         right_video_source=right_video,
         model_to_world=model_to_world,
         camera_to_world=camera_to_world,
-        stereo_mode=stereo_mode
+        stereo_mode=stereo_mode,
+        distance_to_camera=distance_to_camera
     )
 
     stereo_app.start()
