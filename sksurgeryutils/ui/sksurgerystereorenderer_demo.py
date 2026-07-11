@@ -10,6 +10,7 @@ VTKStackedStereoWindow for stereo output.
 """
 
 import logging
+import math
 import os
 
 import cv2
@@ -30,15 +31,20 @@ from sksurgeryvtk.widgets.vtk_interlaced_stereo_window import \
 
 LOGGER = logging.getLogger(__name__)
 
-# pylint: disable=too-many-instance-attributes, too-many-positional-arguments
+# pylint: disable=too-many-instance-attributes, too-many-positional-arguments, invalid-name, too-many-arguments
 
 class TrackballActorWithZoom(vtk.vtkInteractorStyleTrackballActor):
     """
-    Custom VTK interactor style that derives from vtkInteractorStyleTrackballActor.
+    Custom VTK interactor style derived from vtkInteractorStyleTrackballActor.
 
-    Overrides the scroll/dolly behaviour: instead of scaling the actor,
-    we translate the picked actor along the camera's view direction
-    (towards/away from the camera).
+    When the user clicks directly on an actor, VTK's native trackball
+    interaction handles rotation/pan/spin. When the user clicks on empty
+    space, we find the nearest pickable actor and replicate VTK's exact
+    Rotate/Pan/Spin algorithms in Python (since VTK's C++ code refuses
+    to engage without a successful internal pick).
+
+    Also overrides scroll-wheel to dolly along the view direction and
+    provides a 't' key to toggle visibility of toggleable models.
     """
     def __init__(self, stereo_render_app):
         super().__init__()
@@ -47,62 +53,347 @@ class TrackballActorWithZoom(vtk.vtkInteractorStyleTrackballActor):
             raise ValueError("stereo_render_app is None - programming bug.")
         self.stereo_render_app = stereo_render_app
 
-        self.AddObserver("RightButtonPressEvent", self.right_button_press_event)
-        self.AddObserver("RightButtonReleaseEvent", self.right_button_release_event)
-        self.AddObserver("MouseWheelForwardEvent", self.mouse_wheel_forward_event)
-        self.AddObserver("MouseWheelBackwardEvent", self.mouse_wheel_backward_event)
+        self.interaction_prop = None
+        self._custom_state = None  # 'rotate', 'pan', 'spin', or None
 
-    def right_button_press_event(self, obj, event):
+        self.AddObserver("LeftButtonPressEvent", self._on_left_button_down)
+        self.AddObserver("LeftButtonReleaseEvent", self._on_left_button_up)
+        self.AddObserver("MouseMoveEvent", self._on_mouse_move)
+        self.AddObserver("RightButtonPressEvent", self._on_right_button_down)
+        self.AddObserver("RightButtonReleaseEvent", self._on_right_button_up)
+        self.AddObserver("MouseWheelForwardEvent", self._on_wheel_forward)
+        self.AddObserver("MouseWheelBackwardEvent", self._on_wheel_backward)
+        self.AddObserver("KeyPressEvent", self._on_key_press)
+
+    def _get_model_renderer(self):
+        """Returns the layer 1 renderer where model actors live."""
+        return self.stereo_render_app.overlay_window.layer_1_renderer
+
+    def _on_left_button_down(self, obj, event):
         """
-        Process mouse right button press event.
+        If the native pick hits an actor, let VTK handle it. If it
+        misses, find the nearest actor and handle interaction ourselves.
+        """
+        del obj, event
+        interactor = self.GetInteractor()
+        click_x, click_y = interactor.GetEventPosition()
+        renderer = self._get_model_renderer()
+        if not renderer:
+            return
 
-        We do NOT want default scaling behaviour of
-        vtkInteractorStyleTrackballActor, so we override it to look
-        like a left button press with the control key down (spin).
+        # Try native pick
+        picker = vtk.vtkCellPicker()
+        picker.Pick(click_x, click_y, 0, renderer)
+        picked_actor = picker.GetActor()
+
+        if picked_actor:
+            # Direct hit — let VTK handle natively
+            self.interaction_prop = picked_actor
+            self._custom_state = None
+            self.OnLeftButtonDown()
+        else:
+            # Miss — find nearest actor, handle ourselves
+            nearest = self._find_nearest_actor(click_x, click_y, renderer)
+            if nearest:
+                self.interaction_prop = nearest
+                if interactor.GetShiftKey():
+                    self._custom_state = 'pan'
+                elif interactor.GetControlKey():
+                    self._custom_state = 'spin'
+                else:
+                    self._custom_state = 'rotate'
+
+    def _on_mouse_move(self, obj, event):
+        """
+        If in custom mode, use our Python implementation of VTK's
+        algorithms. Otherwise let the base class handle it.
+        """
+        del obj, event
+        if self._custom_state is None:
+            self.OnMouseMove()
+            return
+
+        interactor = self.GetInteractor()
+        renderer = self._get_model_renderer()
+        if not renderer or not self.interaction_prop:
+            return
+
+        if self._custom_state == 'rotate':
+            self._do_rotate(interactor, renderer)
+        elif self._custom_state == 'pan':
+            self._do_pan(interactor, renderer)
+        elif self._custom_state == 'spin':
+            self._do_spin(interactor, renderer)
+
+        self.stereo_render_app.sync_all_models_to_actor(self.interaction_prop)
+
+    def _on_left_button_up(self, obj, event):
+        """End custom interaction or let base class finish."""
+        del obj, event
+        if self._custom_state is not None:
+            self._custom_state = None
+        else:
+            self.OnLeftButtonUp()
+
+    def _on_right_button_down(self, obj, event):
+        """
+        Right-click = spin (ctrl+left in VTK's convention).
+        We do NOT want the default scaling behaviour.
         """
         del obj, event
         interactor = self.GetInteractor()
         interactor.SetControlKey(True)
-        self.OnLeftButtonDown()
+        self._on_left_button_down(None, None)
 
-    def right_button_release_event(self, obj, event):
-        """
-        Process mouse right button release event.
-        """
+    def _on_right_button_up(self, obj, event):
+        """End right-button interaction."""
         del obj, event
-        self.OnLeftButtonUp()
-        interactor = self.GetInteractor()
-        interactor.SetControlKey(False)
+        self._on_left_button_up(None, None)
+        self.GetInteractor().SetControlKey(False)
 
-    def mouse_wheel_forward_event(self, obj, event):
+    def _on_wheel_forward(self, obj, event):
         """Move picked actor towards the camera."""
         del obj, event
         self._dolly_actor(-2.0)
 
-    def mouse_wheel_backward_event(self, obj, event):
+    def _on_wheel_backward(self, obj, event):
         """Move picked actor away from the camera."""
         del obj, event
         self._dolly_actor(2.0)
 
+    def _on_key_press(self, obj, event):
+        """Pressing 't' toggles visibility of toggleable models."""
+        del obj, event
+        if self.GetInteractor().GetKeySym() == 't':
+            self.stereo_render_app.toggle_toggleable_models()
+
+    # ----- VTK algorithm replications (from C++ source) -----
+
+    def _do_rotate(self, interactor, renderer):
+        """Replicate vtkInteractorStyleTrackballActor::Rotate() exactly."""
+        cam = renderer.GetActiveCamera()
+        obj_center = self.interaction_prop.GetCenter()
+        bound_radius = self.interaction_prop.GetLength() * 0.5
+
+        cam.OrthogonalizeViewUp()
+        cam.ComputeViewPlaneNormal()
+        view_up = list(cam.GetViewUp())
+        vtk.vtkMath.Normalize(view_up)
+        view_look = list(cam.GetViewPlaneNormal())
+        view_right = [0.0, 0.0, 0.0]
+        vtk.vtkMath.Cross(view_up, view_look, view_right)
+        vtk.vtkMath.Normalize(view_right)
+
+        outsidept = [
+            obj_center[0] + view_right[0] * bound_radius,
+            obj_center[1] + view_right[1] * bound_radius,
+            obj_center[2] + view_right[2] * bound_radius
+        ]
+
+        renderer.SetWorldPoint(obj_center[0], obj_center[1], obj_center[2], 1.0)
+        renderer.WorldToDisplay()
+        dp = renderer.GetDisplayPoint()
+        disp_obj_center = [dp[0], dp[1], dp[2]]
+
+        renderer.SetWorldPoint(outsidept[0], outsidept[1], outsidept[2], 1.0)
+        renderer.WorldToDisplay()
+        dp2 = renderer.GetDisplayPoint()
+
+        radius = math.sqrt(vtk.vtkMath.Distance2BetweenPoints(
+            disp_obj_center, [dp2[0], dp2[1], dp2[2]]))
+        if radius == 0:
+            return
+
+        ev = interactor.GetEventPosition()
+        lev = interactor.GetLastEventPosition()
+
+        nxf = (ev[0] - disp_obj_center[0]) / radius
+        nyf = (ev[1] - disp_obj_center[1]) / radius
+        oxf = (lev[0] - disp_obj_center[0]) / radius
+        oyf = (lev[1] - disp_obj_center[1]) / radius
+
+        if (nxf * nxf + nyf * nyf) <= 1.0 and (oxf * oxf + oyf * oyf) <= 1.0:
+            new_x_angle = math.degrees(math.asin(nxf))
+            new_y_angle = math.degrees(math.asin(nyf))
+            old_x_angle = math.degrees(math.asin(oxf))
+            old_y_angle = math.degrees(math.asin(oyf))
+
+            scale = [1.0, 1.0, 1.0]
+            rotate = [
+                [new_x_angle - old_x_angle,
+                 view_up[0], view_up[1], view_up[2]],
+                [old_y_angle - new_y_angle,
+                 view_right[0], view_right[1], view_right[2]]
+            ]
+            self._prop3d_transform(
+                self.interaction_prop, obj_center, rotate, scale)
+
+    def _do_pan(self, interactor, renderer):
+        """Replicate vtkInteractorStyleTrackballActor::Pan() exactly."""
+        obj_center = self.interaction_prop.GetCenter()
+
+        renderer.SetWorldPoint(
+            obj_center[0], obj_center[1], obj_center[2], 1.0)
+        renderer.WorldToDisplay()
+        disp_depth = renderer.GetDisplayPoint()[2]
+
+        ev = interactor.GetEventPosition()
+        lev = interactor.GetLastEventPosition()
+
+        renderer.SetDisplayPoint(ev[0], ev[1], disp_depth)
+        renderer.DisplayToWorld()
+        wp = renderer.GetWorldPoint()
+        new_point = [wp[i] / wp[3] for i in range(3)]
+
+        renderer.SetDisplayPoint(lev[0], lev[1], disp_depth)
+        renderer.DisplayToWorld()
+        wp = renderer.GetWorldPoint()
+        old_point = [wp[i] / wp[3] for i in range(3)]
+
+        motion = [new_point[i] - old_point[i] for i in range(3)]
+
+        if self.interaction_prop.GetUserMatrix() is not None:
+            t = vtk.vtkTransform()
+            t.PostMultiply()
+            t.SetMatrix(self.interaction_prop.GetUserMatrix())
+            t.Translate(motion[0], motion[1], motion[2])
+            self.interaction_prop.GetUserMatrix().DeepCopy(t.GetMatrix())
+        else:
+            self.interaction_prop.AddPosition(
+                motion[0], motion[1], motion[2])
+
+    def _do_spin(self, interactor, renderer):
+        """Replicate vtkInteractorStyleTrackballActor::Spin() exactly."""
+        cam = renderer.GetActiveCamera()
+        obj_center = self.interaction_prop.GetCenter()
+
+        if cam.GetParallelProjection():
+            cam.ComputeViewPlaneNormal()
+            motion_vector = list(cam.GetViewPlaneNormal())
+        else:
+            view_point = cam.GetPosition()
+            motion_vector = [
+                view_point[0] - obj_center[0],
+                view_point[1] - obj_center[1],
+                view_point[2] - obj_center[2]
+            ]
+            vtk.vtkMath.Normalize(motion_vector)
+
+        renderer.SetWorldPoint(
+            obj_center[0], obj_center[1], obj_center[2], 1.0)
+        renderer.WorldToDisplay()
+        disp_obj_center = renderer.GetDisplayPoint()
+
+        ev = interactor.GetEventPosition()
+        lev = interactor.GetLastEventPosition()
+
+        new_angle = math.degrees(math.atan2(
+            ev[1] - disp_obj_center[1], ev[0] - disp_obj_center[0]))
+        old_angle = math.degrees(math.atan2(
+            lev[1] - disp_obj_center[1], lev[0] - disp_obj_center[0]))
+
+        scale = [1.0, 1.0, 1.0]
+        rotate = [[new_angle - old_angle,
+                   motion_vector[0], motion_vector[1], motion_vector[2]]]
+        self._prop3d_transform(
+            self.interaction_prop, obj_center, rotate, scale)
+
+    @staticmethod
+    def _prop3d_transform(prop3d, box_center, rotations, scale):
+        """Replicate VTK's Prop3DTransform utility exactly."""
+        old_matrix = vtk.vtkMatrix4x4()
+        prop3d.GetMatrix(old_matrix)
+        orig = prop3d.GetOrigin()
+
+        new_transform = vtk.vtkTransform()
+        new_transform.PostMultiply()
+        if prop3d.GetUserMatrix() is not None:
+            new_transform.SetMatrix(prop3d.GetUserMatrix())
+        else:
+            new_transform.SetMatrix(old_matrix)
+
+        new_transform.Translate(
+            -box_center[0], -box_center[1], -box_center[2])
+        for rot in rotations:
+            new_transform.RotateWXYZ(rot[0], rot[1], rot[2], rot[3])
+        if (scale[0] * scale[1] * scale[2]) != 0.0:
+            new_transform.Scale(scale[0], scale[1], scale[2])
+        new_transform.Translate(
+            box_center[0], box_center[1], box_center[2])
+
+        new_transform.Translate(-orig[0], -orig[1], -orig[2])
+        new_transform.PreMultiply()
+        new_transform.Translate(orig[0], orig[1], orig[2])
+
+        if prop3d.GetUserMatrix() is not None:
+            prop3d.GetUserMatrix().DeepCopy(new_transform.GetMatrix())
+        else:
+            prop3d.SetPosition(new_transform.GetPosition())
+            prop3d.SetScale(new_transform.GetScale())
+            prop3d.SetOrientation(new_transform.GetOrientation())
+
+    # ----- Nearest actor finding -----
+
+    def _find_nearest_actor(self, click_x, click_y, renderer):
+        """
+        Convert click position to world coordinates, evaluate proximity
+        to all visible pickable actors, and return the closest one.
+        """
+        renderer.SetDisplayPoint(click_x, click_y, 0)
+        renderer.DisplayToWorld()
+        world_point = renderer.GetWorldPoint()
+        click_world = world_point[:3]
+
+        pickable_actors = {
+            model.actor for model in self.stereo_render_app.models
+            if model.get_pickable()
+        }
+
+        actors = renderer.GetActors()
+        actors.InitTraversal()
+        closest_actor = None
+        min_distance = float('inf')
+
+        for _ in range(actors.GetNumberOfItems()):
+            actor = actors.GetNextActor()
+            if not actor or not actor.GetVisibility():
+                continue
+            if actor not in pickable_actors:
+                continue
+
+            bounds = actor.GetBounds()
+            actor_center = (
+                (bounds[0] + bounds[1]) / 2.0,
+                (bounds[2] + bounds[3]) / 2.0,
+                (bounds[4] + bounds[5]) / 2.0
+            )
+            distance = vtk.vtkMath.Distance2BetweenPoints(
+                click_world, actor_center)
+            if distance < min_distance:
+                min_distance = distance
+                closest_actor = actor
+
+        return closest_actor
+
+    # ----- Dolly (scroll wheel) -----
+
     def _dolly_actor(self, distance):
         """
-        Translate the currently picked actor along the camera
-        view direction by the given distance.
+        Translate the currently interacted-with actor along the camera
+        view direction by the given distance, then sync all models.
         """
         interactor = self.GetInteractor()
         if interactor is None:
             return
 
-        renderer = interactor.FindPokedRenderer(
-            interactor.GetEventPosition()[0],
-            interactor.GetEventPosition()[1])
+        renderer = self._get_model_renderer()
         if renderer is None:
             return
 
-        model = self.stereo_render_app.get_pickable_model()
-        if model is None:
+        actor = self.interaction_prop
+        if actor is None:
             return
-        current_m2w = model.actor.GetMatrix()
+        current_m2w = actor.GetMatrix()
 
         camera = renderer.GetActiveCamera()
         position = camera.GetPosition()
@@ -119,7 +410,8 @@ class TrackballActorWithZoom(vtk.vtkInteractorStyleTrackballActor):
         new_m2w.SetElement(1, 3, new_m2w.GetElement(1, 3) + vector_to_move[1][0])
         new_m2w.SetElement(2, 3, new_m2w.GetElement(2, 3) + vector_to_move[2][0])
 
-        model.actor.PokeMatrix(new_m2w)
+        actor.PokeMatrix(new_m2w)
+        self.stereo_render_app.sync_all_models_to_actor(actor)
 
 
 class StereoRendererApp:
@@ -158,12 +450,14 @@ class StereoRendererApp:
                  right_video_source,
                  model_to_world=None,
                  camera_to_world=None,
-                 stereo_mode='stacked'):
+                 stereo_mode='stacked',
+                 distance_to_camera=250):
 
         self.left_intrinsics = left_intrinsics
         self.right_intrinsics = right_intrinsics
         self.left_to_right = left_to_right
         self.clipping_range = clipping_range
+        self.distance_to_camera = distance_to_camera
 
         # Determine if sources are static images or video
         self.left_is_static = self._is_static_image(left_video_source)
@@ -205,6 +499,14 @@ class StereoRendererApp:
         if len(self.models) == 0:
             raise ValueError("No models found")
 
+        # Determine which models are toggleable from config
+        self.toggleable_models = []
+        surfaces = models_config.get('surfaces', {})
+        for model, (_, surface_cfg) in zip(
+                self.models, surfaces.items()):
+            if surface_cfg.get('toggleable', False):
+                self.toggleable_models.append(model)
+
         # Create the interactive overlay window (primary display)
         self.overlay_window = VTKOverlayWindow(
             offscreen=False,
@@ -230,7 +532,7 @@ class StereoRendererApp:
             )
         self.stereo_window.add_vtk_models(self.models)
 
-       # Set up the custom interactor on the overlay window
+        # Set up the custom interactor on the overlay window
         self.interactor_style = TrackballActorWithZoom(self)
         interactor = self.overlay_window.GetRenderWindow().GetInteractor()
         interactor.SetInteractorStyle(self.interactor_style)
@@ -269,11 +571,11 @@ class StereoRendererApp:
             self.set_camera_to_world(np.eye(4))
 
             # Which means we need to put model in front of camera.
-            centroid = self.get_pickable_model_centroid()
+            centroid = self.get_all_pickable_models_centroid()
             m2w = np.eye(4)
             m2w[0][3] = -centroid[0]
             m2w[1][3] = -centroid[1]
-            m2w[2][3] = -centroid[2] + 250
+            m2w[2][3] = -centroid[2] + self.distance_to_camera
             self.set_model_to_world(m2w)
 
         # Timer for update loop
@@ -385,8 +687,8 @@ class StereoRendererApp:
 
     def _on_interaction(self, obj, event):
         """
-        Called during an interaction. Syncs the pickable actor's
-        model-to-world to all windows.
+        Called during an interaction. Syncs the currently interacted
+        actor's model-to-world to all other models.
         """
         del obj, event
         self._sync_models_to_stereo()
@@ -401,49 +703,60 @@ class StereoRendererApp:
 
     def _sync_models_to_stereo(self):
         """
-        Find the pickable model (the one the user interacts with),
-        read its current user matrix, and apply that same matrix
-        to all other models. Since all windows share the same model
-        actor references, this keeps everything in sync across
-        all views.
+        Read the current transform from whichever actor the user is
+        interacting with (interaction_prop), and sync all models.
         """
-        pickable_model = self.get_pickable_model()
-        if pickable_model is None:
+        interacted_actor = self.interactor_style.interaction_prop
+        if interacted_actor is None:
             return
+        self.sync_all_models_to_actor(interacted_actor)
 
-        user_matrix = pickable_model.actor.GetMatrix()
+    def sync_all_models_to_actor(self, actor):
+        """
+        Apply the given actor's current matrix to all other models,
+        then render both windows.
+
+        :param actor: the vtkActor whose matrix should be propagated
+        """
+        user_matrix = actor.GetMatrix()
         if user_matrix is None:
             return
 
-        # Apply the same user matrix to all other models
         for model in self.models:
-            if model is not pickable_model:
+            if model.actor is not actor:
                 model.actor.PokeMatrix(user_matrix)
 
         self.overlay_window.Render()
         self.stereo_window.render()
 
-    def get_pickable_model(self):
+    def toggle_toggleable_models(self):
         """
-        Returns the pickable model. Only 1 should be pickable in the .json file.
+        Toggle the visibility of all models marked as toggleable
+        in the config, then re-render both windows.
         """
-        pickable_model = None
+        for model in self.toggleable_models:
+            model.toggle_visibility()
+
+        self.overlay_window.Render()
+        self.stereo_window.render()
+
+    def get_all_pickable_models_centroid(self):
+        """
+        Returns the average centroid of all pickable models. Used for
+        initial camera/model positioning so the whole group is at a
+        reasonable distance from the camera.
+        """
+        centroids = []
         for model in self.models:
             if model.get_pickable():
-                pickable_model = model
-                break
-        if pickable_model is None:
-            raise ValueError("No pickable model. Please edit .json file")
-        return pickable_model
+                centroids.append(model.actor.GetCenter())
 
-    def get_pickable_model_centroid(self):
-        """
-        Returns the centroid of the pickable mode. Only 1 should be pickable.
-        """
-        pickable_model = self.get_pickable_model()
-        centre = pickable_model.actor.GetCenter()
-        LOGGER.info("Centroid is %s", centre)
-        return centre
+        if not centroids:
+            raise ValueError("No pickable model. Please edit .json file")
+
+        centroid = np.mean(centroids, axis=0)
+        LOGGER.info("Combined centroid is %s", centroid)
+        return centroid
 
     def set_camera_to_world(self, camera_to_world):
         """
@@ -499,7 +812,8 @@ def run_demo(left_intrinsics_file,
              right_video,
              model_to_world_file=None,
              camera_to_world_file=None,
-             stereo_mode='stacked'):
+             stereo_mode='stacked',
+             distance_to_camera=250):
     """
     Main entry point to run the stereo renderer demo.
 
@@ -554,7 +868,8 @@ def run_demo(left_intrinsics_file,
         right_video_source=right_video,
         model_to_world=model_to_world,
         camera_to_world=camera_to_world,
-        stereo_mode=stereo_mode
+        stereo_mode=stereo_mode,
+        distance_to_camera=distance_to_camera
     )
 
     stereo_app.start()

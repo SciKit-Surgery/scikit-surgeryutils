@@ -78,6 +78,12 @@ def main(args=None):
                              "right=bottom) or 'interlaced'. "
                              "Default: stacked.")
 
+    parser.add_argument("-d2c", "--distance_to_camera",
+                        required=False,
+                        default=250,
+                        type=int,
+                        help="Distance to camera in millimetres.")
+
     version_string = __version__
     friendly_version_string = version_string if version_string else 'unknown'
     parser.add_argument(
@@ -97,4 +103,6 @@ def main(args=None):
              args.right_video,
              args.model_to_world,
              args.camera_to_world,
-             args.stereo_mode)
+             args.stereo_mode,
+             args.distance_to_camera
+             )
